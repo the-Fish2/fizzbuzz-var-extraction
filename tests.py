@@ -15,5 +15,12 @@ class TestFizzBuzz(unittest.TestCase):
         for i in [15, 90, 150]:
             assert fizzbuzz(i) == "FizzBuzz"
 
+
+class TestGeneralFizzBuzz(unittest.TestCase):
+    def test_fizz(self):
+        for i in [1, 2, 4, 7, 8, 394]:
+            assert fizzbuzz(i) == i
+
+
 if __name__ == '__main__':
     unittest.main()

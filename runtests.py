@@ -33,7 +33,7 @@ class ModifiedTestRunner(TestRunner):
                 original_func = test_method.__func__
 
                 modified_test_method = function_injection(original_func)
-                print(modified_test_method)
+                # print(modified_test_method)
 
                 module_name = test.__class__.__module__
                 module = sys.modules.get(module_name)

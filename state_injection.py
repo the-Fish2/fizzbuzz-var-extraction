@@ -85,6 +85,8 @@ def function_injection(unit_test_method):
 
             for var_name, var_value in user_defined_vars.items():
                 print(f"{var_name}: {var_value}")
+            
+            print()
                                         
         """)
     

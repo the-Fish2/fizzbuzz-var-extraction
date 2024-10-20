@@ -1,4 +1,7 @@
+#This is the function I'm testing! Just fizzbuzz -- simple. The test should only realy output the correct values of i. 
+
 def fizzbuzz(i):
+    additionalTestCase = "Hi!"
     if i % 15 == 0:
         return "FizzBuzz"
     elif i % 5 == 0:

@@ -1,7 +1,7 @@
 import unittest
 from fizzbuzz import fizzbuzz
 
-
+#Generating test cases! Checking for both different classes of tests and different functions within each test
 class TestFizzBuzz(unittest.TestCase):
     def test_fizz(self):
         for i in [3, 6, 9]:

@@ -3,6 +3,7 @@ from importlib import import_module
 from state_injection import function_injection
 import sys
 
+# This is how the tests are being run, which is pretty stock testrunner code with the python unittests library. 
 class TestRunner:
     def __init__(self):
         self.test_suite = unittest.TestSuite()
@@ -22,19 +23,23 @@ class TestRunner:
         result = runner.run(self.test_suite)
         return result
 
+# This is the modified version of the test runner, which includes the code for the function injection
 class ModifiedTestRunner(TestRunner):
 
+    #Adds suite tests one at a time after inserting state output function calls after every ast object
     def recursively_add_tests(self, suite_to_add, modified_suite):
         for test in suite_to_add:
+            #Recursively iterating through the test suites and cases
             if isinstance(test, unittest.TestSuite):
                 modified_suite = self.recursively_add_tests(test, modified_suite)
             elif isinstance(test, unittest.TestCase):
                 test_method = getattr(test, test._testMethodName)
                 original_func = test_method.__func__
 
+                #State output, function injection comes from state_injection.py
                 modified_test_method = function_injection(original_func)
-                # print(modified_test_method)
 
+                #Adding imports
                 module_name = test.__class__.__module__
                 module = sys.modules.get(module_name)
                 if module is None:
@@ -45,11 +50,11 @@ class ModifiedTestRunner(TestRunner):
                 
                 NewTestClass = type(f"Modified{test.__class__.__name__}", (test.__class__,), {})
 
+                #Executing code so that when the method is next called, it gets the correct version
                 exec_namespace = exec_globals
                 exec(modified_test_method, exec_namespace)
 
-                #From chatgpt:
-
+                #From chatgpt: (Basically keeping the context of the initial method)
                 new_test_method = exec_namespace[test._testMethodName]
                 new_test_instance = NewTestClass(test._testMethodName)
 
@@ -63,6 +68,7 @@ class ModifiedTestRunner(TestRunner):
 
         return modified_suite
 
+    #adding tests!
     def add_test(self, tests):
         modified_suite = unittest.TestSuite()
         modified_suite = self.recursively_add_tests(tests, modified_suite)

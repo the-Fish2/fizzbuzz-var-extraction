@@ -33,6 +33,8 @@ class ModifiedTestRunner(TestRunner):
                 original_func = test_method.__func__
 
                 modified_test_method = function_injection(original_func)
+                print(modified_test_method)
+
                 module_name = test.__class__.__module__
                 module = sys.modules.get(module_name)
                 if module is None:
@@ -41,15 +43,23 @@ class ModifiedTestRunner(TestRunner):
                 else:
                     exec_globals = module.__dict__
                 
-                try:
-                    exec(modified_test_method)
-                    modified_suite.addTest(test)
-                    print("Running this test succeeded")
-                except Exception as e:
-                    print(e)
-                    print("Running this test failed")
+                NewTestClass = type(f"Modified{test.__class__.__name__}", (test.__class__,), {})
 
-                    print("Unknown test type:", type(test))
+                exec_namespace = exec_globals
+                exec(modified_test_method, exec_namespace)
+
+                #From chatgpt:
+
+                new_test_method = exec_namespace[test._testMethodName]
+                new_test_instance = NewTestClass(test._testMethodName)
+
+                # Bind the new method to the instance
+                bound_method = new_test_method.__get__(new_test_instance, NewTestClass)
+                setattr(new_test_instance, test._testMethodName, bound_method)
+
+                # Add the new test instance to the suite
+                modified_suite.addTest(new_test_instance)
+
 
         return modified_suite
 

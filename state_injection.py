@@ -73,10 +73,7 @@ def function_injection(unit_test_method):
                 return repr(obj)
 
             exclude_sections = ['In', 'Out', 'requests', 'json', 'os', 'subprocess', 'tempfile', 'shutil', 're', 'ast']
-            print("Local vars!")
-                                        
-            print(local_vars)
-                                        
+    
             all_vars = local_vars
             
             user_defined_vars = {
@@ -90,5 +87,11 @@ def function_injection(unit_test_method):
                 print(f"{var_name}: {var_value}")
                                         
         """)
+    
+    # state_output_code = textwrap.dedent(""" 
+    # def state_output(local_vars, codeLine, loc): 
+    #     print("Counter") 
+    # """)
+
     tree = state_output_code + "\n" + tree
     return tree

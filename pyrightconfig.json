@@ -1,0 +1,5 @@
+{
+    "include": ["state_output.py", "state_injection.py", "run_tests.py", "tests.py", "fizzbuzz.py"],
+    "exclude": ["__pycache__", "bin", "venv", "include", "lib", "run_functions.py"],
+    "typeCheckingMode": "basic"
+}

@@ -3,9 +3,11 @@ This is the file for the state output function, which is used to print out the v
 """
 
 from typing import Any, Dict, List
+import os
+import json
 
 
-def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int) -> None:
+def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: str) -> None:
 
     # This is a helper function for determining if a variable is a user-defined variable.
     def testName(name: str, value: Any) -> bool:
@@ -57,10 +59,21 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int) -> None:
         if testName(name, value)
     }
 
-    # Printing variable extraction!
     print(codeLine, "Line number: ", loc)
 
     for var_name, var_value in user_defined_vars.items():
         print(f"{var_name}: {var_value}")
+    
+    output_entry = {
+        "line_number": loc,
+        "code_line": codeLine,
+        "variables": user_defined_vars
+    }
+
+    output_dir = "state_output_logs"
+    os.makedirs(output_dir, exist_ok=True)
+
+    with open(f'{output_dir}/{filepath}.jsonl', 'a') as f:
+        json.dump(output_entry, f, indent=2)
 
     print()

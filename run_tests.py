@@ -90,5 +90,6 @@ class ModifiedTestRunner(TestRunner):
 
 if __name__ == "__main__":
     runner = ModifiedTestRunner()
-    runner.load_tests_from_module("tests")
+    runner.load_tests_from_module("fizzbuzz_funcs.tests")
     runner.run_tests()
+

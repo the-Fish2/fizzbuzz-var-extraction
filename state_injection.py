@@ -9,7 +9,6 @@ from typing import List, Callable, Union, Sequence
 
 # ASTNode = Union[ast.stmt, ast.AST, ast.Module, ast.Expr]
 
-
 # Helper functions: checking for ast.stmt types, and if a node has a body
 def has_body(node: ast.AST) -> bool:
     return hasattr(node, "body")
@@ -65,15 +64,15 @@ def function_injection(unit_test_method: Callable) -> str:
 
     # Directly inserting state output calls
     tree = ast.parse(string_test)
-    print("Hello!")
+
     print(tree)
-    tr2 = recursive_injection(tree)
-    tree = ast.unparse(tr2)
+    #tree = recursive_injection(tree)
+    tree = ast.unparse(tree)
 
     # Necessary state output context for the function to run.
-    with open("state_output.py", "r") as f:
-        state_output_code = textwrap.dedent(f.read())
-
-    # Prepending the necessary context to each test case that is being run.
-    tree = state_output_code + "\n" + tree
+    # with open("state_output.py", "r") as f:
+    #     state_output_code = textwrap.dedent(f.read())
+    
+    # # Prepending the necessary context to each test case that is being run.
+    # tree = state_output_code + "\n" + tree
     return tree

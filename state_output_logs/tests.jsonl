@@ -1,0 +1,139 @@
+{
+  "line_number": 1,
+  "code_line": "'\\nThis is a sample test runner using test cases for i to run the fizzbuzz function, testing all the different cases.\\n'",
+  "variables": {}
+}{
+  "line_number": 5,
+  "code_line": "import unittest",
+  "variables": {}
+}{
+  "line_number": 6,
+  "code_line": "from fizzbuzz_funcs.fizzbuzz import fizzbuzz",
+  "variables": {
+    "unittest": "module{}"
+  }
+}{
+  "line_number": 9,
+  "code_line": "class TestFizzBuzz(unittest.TestCase):\n\n    def test_fizz(self) -> None:\n        for i in [3, 6, 9]:\n            assert fizzbuzz(i) == 'Fizz'\n\n    def test_buzz(self) -> None:\n        for i in [10, 20, 35]:\n            assert fizzbuzz(i) == 'Buzz'\n\n    def test_fizzbuzz(self) -> None:\n        for i in [15, 90, 150]:\n            assert fizzbuzz(i) == 'FizzBuzz'",
+  "variables": {
+    "unittest": "module{}"
+  }
+}{
+  "line_number": 23,
+  "code_line": "class TestGeneralFizzBuzz(unittest.TestCase):\n\n    def test_fizz(self) -> None:\n        for i in [1, 2, 4, 7, 8, 394]:\n            assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "unittest": "module{}"
+  }
+}{
+  "line_number": 29,
+  "code_line": "if __name__ == '__main__':\n    unittest.main()",
+  "variables": {
+    "unittest": "module{}"
+  }
+}{
+  "line_number": 15,
+  "code_line": "for i in [10, 20, 35]:\n    assert fizzbuzz(i) == 'Buzz'",
+  "variables": {}
+}{
+  "line_number": 16,
+  "code_line": "assert fizzbuzz(i) == 'Buzz'",
+  "variables": {
+    "i": "10"
+  }
+}{
+  "line_number": 16,
+  "code_line": "assert fizzbuzz(i) == 'Buzz'",
+  "variables": {
+    "i": "20"
+  }
+}{
+  "line_number": 16,
+  "code_line": "assert fizzbuzz(i) == 'Buzz'",
+  "variables": {
+    "i": "35"
+  }
+}{
+  "line_number": 11,
+  "code_line": "for i in [3, 6, 9]:\n    assert fizzbuzz(i) == 'Fizz'",
+  "variables": {}
+}{
+  "line_number": 12,
+  "code_line": "assert fizzbuzz(i) == 'Fizz'",
+  "variables": {
+    "i": "3"
+  }
+}{
+  "line_number": 12,
+  "code_line": "assert fizzbuzz(i) == 'Fizz'",
+  "variables": {
+    "i": "6"
+  }
+}{
+  "line_number": 12,
+  "code_line": "assert fizzbuzz(i) == 'Fizz'",
+  "variables": {
+    "i": "9"
+  }
+}{
+  "line_number": 19,
+  "code_line": "for i in [15, 90, 150]:\n    assert fizzbuzz(i) == 'FizzBuzz'",
+  "variables": {}
+}{
+  "line_number": 20,
+  "code_line": "assert fizzbuzz(i) == 'FizzBuzz'",
+  "variables": {
+    "i": "15"
+  }
+}{
+  "line_number": 20,
+  "code_line": "assert fizzbuzz(i) == 'FizzBuzz'",
+  "variables": {
+    "i": "90"
+  }
+}{
+  "line_number": 20,
+  "code_line": "assert fizzbuzz(i) == 'FizzBuzz'",
+  "variables": {
+    "i": "150"
+  }
+}{
+  "line_number": 25,
+  "code_line": "for i in [1, 2, 4, 7, 8, 394]:\n    assert fizzbuzz(i) == str(i)",
+  "variables": {}
+}{
+  "line_number": 26,
+  "code_line": "assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "i": "1"
+  }
+}{
+  "line_number": 26,
+  "code_line": "assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "i": "2"
+  }
+}{
+  "line_number": 26,
+  "code_line": "assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "i": "4"
+  }
+}{
+  "line_number": 26,
+  "code_line": "assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "i": "7"
+  }
+}{
+  "line_number": 26,
+  "code_line": "assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "i": "8"
+  }
+}{
+  "line_number": 26,
+  "code_line": "assert fizzbuzz(i) == str(i)",
+  "variables": {
+    "i": "394"
+  }
+}

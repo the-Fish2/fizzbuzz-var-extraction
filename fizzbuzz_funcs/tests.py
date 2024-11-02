@@ -3,7 +3,7 @@ This is a sample test runner using test cases for i to run the fizzbuzz function
 """
 
 import unittest
-from fizzbuzz import fizzbuzz
+from fizzbuzz_funcs.fizzbuzz import fizzbuzz
 
 
 class TestFizzBuzz(unittest.TestCase):

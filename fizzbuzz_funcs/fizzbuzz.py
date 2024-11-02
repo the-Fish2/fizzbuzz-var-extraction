@@ -4,6 +4,7 @@ Implements the FizzBuzz problem for an input number i.
 
 
 def fizzbuzz(i: int) -> str:
+    randomLocalVariable = 1
     if i % 15 == 0:
         return "FizzBuzz"
     elif i % 5 == 0:

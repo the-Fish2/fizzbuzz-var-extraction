@@ -1,0 +1,275 @@
+{
+  "line_number": 1,
+  "code_line": "' \\nImplements the FizzBuzz problem for an input number i. \\n'",
+  "variables": {}
+}{
+  "line_number": 6,
+  "code_line": "def fizzbuzz(i: int) -> str:\n    randomLocalVariable = 1\n    if i % 15 == 0:\n        return 'FizzBuzz'\n    elif i % 5 == 0:\n        return 'Buzz'\n    elif i % 3 == 0:\n        return 'Fizz'\n    else:\n        return str(i)",
+  "variables": {}
+}{
+  "line_number": 18,
+  "code_line": "def main() -> None:\n    for i in range(1, 101):\n        print(fizzbuzz(i))",
+  "variables": {}
+}{
+  "line_number": 23,
+  "code_line": "if __name__ == '__main__':\n    main()",
+  "variables": {}
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "10"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "10",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 11,
+  "code_line": "return 'Buzz'",
+  "variables": {
+    "i": "10",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "20"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "20",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 11,
+  "code_line": "return 'Buzz'",
+  "variables": {
+    "i": "20",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "35"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "35",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 11,
+  "code_line": "return 'Buzz'",
+  "variables": {
+    "i": "35",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "3"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "3",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 13,
+  "code_line": "return 'Fizz'",
+  "variables": {
+    "i": "3",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "6"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "6",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 13,
+  "code_line": "return 'Fizz'",
+  "variables": {
+    "i": "6",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "9"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "9",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 13,
+  "code_line": "return 'Fizz'",
+  "variables": {
+    "i": "9",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "15"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "15",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 9,
+  "code_line": "return 'FizzBuzz'",
+  "variables": {
+    "i": "15",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "90"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "90",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 9,
+  "code_line": "return 'FizzBuzz'",
+  "variables": {
+    "i": "90",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "150"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "150",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 9,
+  "code_line": "return 'FizzBuzz'",
+  "variables": {
+    "i": "150",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "1"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "1",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "2"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "2",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "4"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "4",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "7"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "7",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "8"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "8",
+    "randomLocalVariable": "1"
+  }
+}{
+  "line_number": 7,
+  "code_line": "randomLocalVariable = 1",
+  "variables": {
+    "i": "394"
+  }
+}{
+  "line_number": 8,
+  "code_line": "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)",
+  "variables": {
+    "i": "394",
+    "randomLocalVariable": "1"
+  }
+}

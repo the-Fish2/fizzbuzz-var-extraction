@@ -9,7 +9,7 @@ from pathlib import Path
 import subprocess
 import os
 
-FILEPATH = '.'
+FILEPATH = 'my_folder'
 #FILEPATH = os.path.dirname(os.path.abspath(__file__))
 
 class CodeInjector:
@@ -67,7 +67,10 @@ class CodeInjector:
         new_source = ast.unparse(modified_tree)
         
         # Add state output code
-        final_source = self.state_output_code + "\n\n" + new_source
+        import_statement = f"from my_folder.state_output import state_output\n"
+        
+        final_source = import_statement + "\n\n" + new_source
+        #self.state_output_code + "\n\n" + new_source
         
         # Create backup of original file
         backup_path = module_path.with_suffix('.py.bak')

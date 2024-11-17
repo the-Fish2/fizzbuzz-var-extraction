@@ -5,6 +5,7 @@ Sample unit test set for fizzbuzz.py.
 import unittest
 from tests.fizzbuzz import fizzbuzz
 from tests.point import TwoPoint # type: ignore
+from tests.quicksort import quickSort #type:ignore
 
 class TestFizzBuzz(unittest.TestCase):
     def test_fizz(self) -> None:
@@ -31,6 +32,37 @@ class TestCustomRepresentation(unittest.TestCase):
         z.x1 = 3
         z.changeValue(17)
         assert z.x1 == 17
+
+class TestQuickSort(unittest.TestCase):
+    def test_easy_arr(self) ->None:
+        arr = [10, 7, 8, 9, 1, 5]
+        arr = quickSort(arr, 0, len(arr) - 1)
+        assert arr == [1, 5, 7, 8, 9, 10]
+    
+    def test_dupl_arr(self) ->None:
+        arr = [10, 7, 8, 9, 1, 1, 1, 8, 10, 11, 5]
+        arr = quickSort(arr, 0, len(arr) - 1)
+        assert arr == [1, 1, 1, 5, 7, 8, 8, 9, 10, 10, 11]
+
+    def test_identical_arr(self)->None:
+        arr = [1, 1, 1, 1, 1, 1]
+        arr = quickSort(arr, 0, len(arr) - 1)
+        assert arr == [1, 1, 1, 1, 1, 1]
+
+    def test_in_sorted_order(self)->None:
+        arr = [1, 2, 3, 4, 5]
+        arr = quickSort(arr, 0, len(arr) - 1)
+        assert arr == [1, 2, 3, 4, 5]
+
+    def test_empty_arr(self)->None:
+        arr = []
+        arr = quickSort(arr, 0, len(arr) - 1)
+        assert arr == []
+
+    def test_one_elem_arr(self)->None:
+        arr = [5]
+        arr = quickSort(arr, 0, len(arr) - 1)
+        assert arr == [5]
 
 
 if __name__ == "__main__":

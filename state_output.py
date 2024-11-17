@@ -24,17 +24,19 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
             "ast",
         ]
         if (
-            not name.startswith("_")
+            #Removing __name__, __doc__, __package__, __loader__, __spec__, __file__, __cached__, and __builtins__
+            not name.startswith("__")
             and name not in dir(__builtins__)
             and not callable(value)
-            and not isinstance(value, type)
             and name not in exclude_sections
         ):
             return True
         return False
-
-    # Here, obj is any object that is defined with a class. This is basically a way of outputting any such user-defined object. Max-depth refers to if an object is defined with a reference to another class, and so forth, for determining the number of nested classes that will be iterated through before stopping.
-    def custom_repr(obj: Any, depth: int = 0, max_depth: int = 10) -> str:
+    
+    def custom_repr(obj: Any, depth: int = 0, max_depth: int = 2) -> str:
+        """
+            Here, obj is any object that is defined with a class. This is basically a way of outputting any such user-defined object. Max-depth refers to if an object is defined with a reference to another class, and so forth, for determining the number of nested classes that will be iterated through before stopping.
+        """
         if depth > max_depth:
             return ""
 
@@ -58,22 +60,12 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
         for name, value in all_vars.items()
         if testName(name, value)
     }
-
-    print(codeLine, "Line number: ", loc)
-
-    for var_name, var_value in user_defined_vars.items():
-        print(f"{var_name}: {var_value}")
     
     output_entry = {
         "line_number": loc,
         "code_line": codeLine,
-        "variables": user_defined_vars
+        "variables": user_defined_vars,
+        "file": filepath,
     }
 
-    output_dir = "state_output_logs"
-    os.makedirs(output_dir, exist_ok=True)
-
-    with open(f'{output_dir}/{filepath}.jsonl', 'a') as f:
-        json.dump(output_entry, f, indent=2)
-
-    print()
+    print(output_entry)

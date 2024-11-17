@@ -1,0 +1,16 @@
+{
+  "line_number": 1,
+  "code_line": "class Point:\n    x = 0\n    y = 0",
+  "variables": {}
+}{
+  "line_number": 5,
+  "code_line": "class TwoPoint:\n    x1 = 2\n    x2 = 2\n    x3 = Point()\n\n    def changeValue(self, x4):\n        self.x1 = x4",
+  "variables": {}
+}{
+  "line_number": 11,
+  "code_line": "self.x1 = x4",
+  "variables": {
+    "self": "TwoPoint{x1: 3, x2: 2, x3: Point{x: 0, y: 0}}",
+    "x4": "17"
+  }
+}

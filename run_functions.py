@@ -7,6 +7,10 @@ from typing import List, Set, Callable, Optional
 from importlib import util, import_module
 from pathlib import Path
 import subprocess
+import os
+
+FILEPATH = '.'
+#FILEPATH = os.path.dirname(os.path.abspath(__file__))
 
 class CodeInjector:
     """
@@ -19,20 +23,31 @@ class CodeInjector:
         self.processed_files: Set[str] = set()
         
         # Load state output code
-        with open("state_output.py", "r") as f:
+        with open(f"{FILEPATH}/state_output.py", "r") as f:
             self.state_output_code = textwrap.dedent(f.read())
 
-    def find_python_files(self) -> List[Path]:
-        """Find all Python files in the directory tree."""
+
+    def find_python_files(self, current_dir: Path = None) -> List[Path]:
+        """Find all Python files in the directory tree recursively.
+        
+        Args:
+            current_dir (Path, optional): Current directory being processed. 
+                Defaults to None (uses root_dir on first call).
+        
+        Returns:
+            List[Path]: List of paths to Python files found
+        """
+
         python_files = []
-        for root, dirs, files in os.walk(self.root_dir):
-            # Remove excluded directories
-            dirs[:] = [d for d in dirs if d not in self.exclude_dirs]
-            
-            for file in files:
-                if file.endswith('.py'):
-                    file_path = Path(root) / file
-                    python_files.append(file_path)
+        
+        # Process all files in current directory
+        for item in current_dir.iterdir():
+            if item.is_dir() and item.name not in self.exclude_dirs:
+                next_files = self.find_python_files(item)
+                python_files.extend(next_files)
+            elif item.is_file() and item.suffix == '.py':
+                python_files.append(item)
+                
         return python_files
 
     def process_module(self, module_path: Path) -> None:
@@ -99,7 +114,7 @@ class CodeInjector:
 
     def process_all_files(self) -> None:
         """Process all Python files in the module."""
-        python_files = self.find_python_files()
+        python_files = self.find_python_files(self.root_dir)
         for file_path in python_files:
             self.process_module(file_path)
 

@@ -1,10 +1,10 @@
 """
-This is a sample test runner using test cases for i to run the fizzbuzz function, testing all the different cases.
+Sample unit test set for fizzbuzz.py.
 """
 
 import unittest
-from fizzbuzz_funcs.fizzbuzz import fizzbuzz
-
+from tests.fizzbuzz import fizzbuzz
+from tests.point import TwoPoint # type: ignore
 
 class TestFizzBuzz(unittest.TestCase):
     def test_fizz(self) -> None:
@@ -24,6 +24,13 @@ class TestGeneralFizzBuzz(unittest.TestCase):
     def test_fizz(self) -> None:
         for i in [1, 2, 4, 7, 8, 394]:
             assert fizzbuzz(i) == str(i)
+
+class TestCustomRepresentation(unittest.TestCase):
+    def test_custom_representation(self) -> None:
+        z = TwoPoint()
+        z.x1 = 3
+        z.changeValue(17)
+        assert z.x1 == 17
 
 
 if __name__ == "__main__":

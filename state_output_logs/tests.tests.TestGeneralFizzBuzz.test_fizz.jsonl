@@ -1,0 +1,19 @@
+{'line_number': 26, 'code_line': 'for i in [1, 2, 4, 7, 8, 394]:\n    assert fizzbuzz(i) == str(i)', 'variables': {}, 'file': 'tests'}
+{'line_number': 27, 'code_line': 'assert fizzbuzz(i) == str(i)', 'variables': {'i': '1'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '1', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 27, 'code_line': 'assert fizzbuzz(i) == str(i)', 'variables': {'i': '2'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '2'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '2', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 27, 'code_line': 'assert fizzbuzz(i) == str(i)', 'variables': {'i': '4'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '4'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '4', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 27, 'code_line': 'assert fizzbuzz(i) == str(i)', 'variables': {'i': '7'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '7'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '7', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 27, 'code_line': 'assert fizzbuzz(i) == str(i)', 'variables': {'i': '8'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '8'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '8', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 27, 'code_line': 'assert fizzbuzz(i) == str(i)', 'variables': {'i': '394'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '394'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '394', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}

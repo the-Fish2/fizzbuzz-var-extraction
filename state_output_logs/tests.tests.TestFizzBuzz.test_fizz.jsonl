@@ -1,0 +1,13 @@
+{'line_number': 12, 'code_line': "for i in [3, 6, 9]:\n    assert fizzbuzz(i) == 'Fizz'", 'variables': {}, 'file': 'tests'}
+{'line_number': 13, 'code_line': "assert fizzbuzz(i) == 'Fizz'", 'variables': {'i': '3'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '3'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '3', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 13, 'code_line': "return 'Fizz'", 'variables': {'i': '3', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 13, 'code_line': "assert fizzbuzz(i) == 'Fizz'", 'variables': {'i': '6'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '6'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '6', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 13, 'code_line': "return 'Fizz'", 'variables': {'i': '6', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 13, 'code_line': "assert fizzbuzz(i) == 'Fizz'", 'variables': {'i': '9'}, 'file': 'tests'}
+{'line_number': 7, 'code_line': 'randomLocalVariable = 1', 'variables': {'i': '9'}, 'file': 'fizzbuzz'}
+{'line_number': 8, 'code_line': "if i % 15 == 0:\n    return 'FizzBuzz'\nelif i % 5 == 0:\n    return 'Buzz'\nelif i % 3 == 0:\n    return 'Fizz'\nelse:\n    return str(i)", 'variables': {'i': '9', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}
+{'line_number': 13, 'code_line': "return 'Fizz'", 'variables': {'i': '9', 'randomLocalVariable': '1'}, 'file': 'fizzbuzz'}

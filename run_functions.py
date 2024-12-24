@@ -9,7 +9,7 @@ from pathlib import Path
 import subprocess
 import os
 
-FILEPATH = 'my_folder'
+FILEPATH = 'internal_code'
 #FILEPATH = os.path.dirname(os.path.abspath(__file__))
 
 class CodeInjector:
@@ -27,7 +27,7 @@ class CodeInjector:
             self.state_output_code = textwrap.dedent(f.read())
 
 
-    def find_python_files(self, current_dir: Path = None) -> List[Path]:
+    def find_python_files(self, current_dir: Path) -> List[Path]:
         """Find all Python files in the directory tree recursively.
         
         Args:
@@ -67,7 +67,7 @@ class CodeInjector:
         new_source = ast.unparse(modified_tree)
         
         # Add state output code
-        import_statement = f"from my_folder.state_output import state_output\n"
+        import_statement = f"from internal_code.state_output import state_output\n"
         
         final_source = import_statement + "\n\n" + new_source
         #self.state_output_code + "\n\n" + new_source
@@ -150,19 +150,28 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python code_injector.py <root_directory> [exclude_dir1,exclude_dir2,...]")
         sys.exit(1)
-        
+
     root_dir = sys.argv[1]
-    exclude_dirs = sys.argv[2].split(',') if len(sys.argv) > 2 else None
-    
-    injector = inject_codebase(root_dir, exclude_dirs)
-    print(f"Successfully processed files: {len(injector.processed_files)}")
+    remove_arg = True if len(sys.argv) > 2 and sys.argv[2] == 'remove' else False
+    if (len(sys.argv) > 2 and sys.argv[2] != 'remove'):
+        exclude_dirs = sys.argv[2].split(',')
+    else:
+        exclude_dirs = None
 
-    try:
-        result = subprocess.run(["python", "run_tests.py"], check=True, capture_output=True, text=True)
-        print("Test results:\n", result.stdout)
-    except subprocess.CalledProcessError as e:
-        print("An error occurred while running tests:\n", e.stderr)
+    if remove_arg:
+        injector = CodeInjector(root_dir, exclude_dirs)
+        injector.processed_files = injector.find_python_files(Path(root_dir));
+        injector.restore_backups()
+    else:
+        injector = inject_codebase(root_dir, exclude_dirs)
+        print(f"Successfully processed files: {len(injector.processed_files)}")
 
-    input(" :) ")
+        try:
+            result = subprocess.run(["python", "run_tests.py", root_dir], check=True, capture_output=True, text=True)
+            print("Test results:\n", result.stdout)
+        except subprocess.CalledProcessError as e:
+            print("An error occurred while running tests:\n", e.stderr)
 
-    injector.restore_backups()
+        input(" :) ")
+
+        injector.restore_backups()

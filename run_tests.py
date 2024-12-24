@@ -6,6 +6,7 @@ import unittest
 from importlib import import_module
 # from state_injection import function_injection
 import sys
+import os
 
 
 # This is how the tests are being run, which is pretty stock testrunner code with the python unittests library.
@@ -44,6 +45,12 @@ class ModifiedTestRunner(TestRunner):
         def run_test_case(test):
             if isinstance(test, unittest.TestCase):
                 test_id = test.id()  # Use the test's ID as a text value
+                if (os.path.isdir("state_output_logs")):
+                    to_delete = os.listdir("state_output_logs")
+                    for f in to_delete:
+                        #should be jsonl if wanting to delete
+                        if f.endswith('.json'): 
+                            os.remove(f)
                 sys.stdout = open(f"state_output_logs/{test_id}.jsonl", 'a')
                 test(result)
 
@@ -115,6 +122,9 @@ class ModifiedTestRunner(TestRunner):
 
 if __name__ == "__main__":
     runner = ModifiedTestRunner()
-    runner.load_tests_from_module("tests.tests")
-    runner.run_tests()
+    if (len(sys.argv) > 1):
+        runner.load_tests_from_module(f'{sys.argv[1]}.tests')
+        runner.run_tests()
+    else:
+        print("Specify which tests should be run!")
 

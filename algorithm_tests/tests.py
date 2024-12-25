@@ -1,10 +1,10 @@
 import unittest
 
-from tests.test1 import dijkstra #type: ignore
-from tests.test2 import merge #type: ignore
-from tests.test3 import a_star #type: ignore
-from tests.test4 import depth_first_search #type: ignore
-from tests.test5 import knapsack #type: ignore
+from algorithm_tests.test1 import dijkstra #type: ignore
+from algorithm_tests.test2 import merge_sort #type: ignore
+from algorithm_tests.test3 import a_star #type: ignore
+from algorithm_tests.test4 import depth_first_search #type: ignore
+from algorithm_tests.test5 import knapsack #type: ignore
 
 class TestDijkstra(unittest.TestCase):
     def test_dijkstra_basic(self):
@@ -38,7 +38,7 @@ class TestDijkstra(unittest.TestCase):
         for node in disconnected_graph:
             self.assertEqual(distances[node], 0 if node == 'A' else float('infinity'))
 
-class TestMergeSort(unittest.TestCase)
+class TestMergeSort(unittest.TestCase):
     def test_merge_sort_various_inputs(self):
         # Empty list
         self.assertEqual(merge_sort([]), [])
@@ -60,7 +60,7 @@ class TestMergeSort(unittest.TestCase)
         self.assertEqual(merge_sort(large_list), list(range(1, 1001)))
     
 
-class TestAStar(unittest.TestCase)
+class TestAStar(unittest.TestCase):
     def test_astar_pathfinding(self):
         # Basic grid with clear path
         grid1 = [
@@ -72,8 +72,9 @@ class TestAStar(unittest.TestCase)
         ]
         path1 = a_star(grid1, (0, 0), (4, 4))
         self.assertIsNotNone(path1)
-        self.assertEqual(path1[0], (0, 0))
-        self.assertEqual(path1[-1], (4, 4))
+        if path1:
+            self.assertEqual(path1[0], (0, 0))
+            self.assertEqual(path1[-1], (4, 4))
         
         # Grid with obstacles
         grid2 = [
@@ -98,7 +99,7 @@ class TestAStar(unittest.TestCase)
         self.assertIsNone(path3)
     
 
-class TestDFS(unittest.TestCase)
+class TestDFS(unittest.TestCase):
     def test_depth_first_search(self):
         # Basic graph
         graph1 = {
@@ -128,7 +129,7 @@ class TestDFS(unittest.TestCase)
         self.assertEqual(traversal3, ['A'])
     
 
-class TestKnapsack(unittest.TestCase)
+class TestKnapsack(unittest.TestCase):
     def test_knapsack(self):
         # Basic test case
         weights1 = [10, 20, 30]

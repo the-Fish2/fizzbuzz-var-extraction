@@ -7,6 +7,7 @@ from importlib import import_module
 # from state_injection import function_injection
 import sys
 import os
+import json
 
 
 # This is how the tests are being run, which is pretty stock testrunner code with the python unittests library.
@@ -54,14 +55,53 @@ class ModifiedTestRunner(TestRunner):
                 sys.stdout = open(f"state_output_logs/{test_id}.jsonl", 'a')
                 test(result)
 
+        totalScore = 0;
+        testCount = 0;
+
         for test in self.test_suite:
             if isinstance(test, unittest.TestSuite):
                 for sub_test in test:  # Iterate through sub-tests in the suite
                     run_test_case(sub_test)
+                    score += self.compare_to_GPT(sub_test)
+                    testCount += 1
             else:
                 run_test_case(test)
+                score += self.compare_to_GPT(test)
+                testCount += 1
+            
+        score /= testCount
+        print(score)   
+
         #result = runner.run(self.test_suite)
         return result
+    
+    def compare_to_GPT(self, test: unittest.TestCase) -> float:
+        testId = test.id().split(".")
+        gptOutput = []
+
+        if (os.path.isfile(f'{testId[0]}/state_output_logs/{testId[3]}.jsonl')):
+            with open(f'{testId[0]}/state_output_logs/{testId[3]}.jsonl', 'r') as f:
+                gptOutput = [json.loads(line) for line in f]
+
+            with open(f"state_output_logs/{'.'.join(testId)}.jsonl", 'r') as f:
+                correctOutput = [json.loads(line) for line in f]
+
+            score = min(len(gptOutput), len(correctOutput))
+
+            for gptO, correctO in gptOutput, correctOutput:
+                if gptO['file'] != correctO['file'] or gptO['variables'] != correctO['variables'] or gptO['line_number'] != correctO['line_number']:
+                    score -= 1
+                
+                #Very easy for misaligned output (ie, first line output in file 1 might be different from file 2)
+                print(gptO)
+                print(correctO)
+            
+            score /= max(len(gptOutput), len(correctOutput))
+
+            print(score)
+            return score
+    
+        return -1
 
     # Adds suite tests one at a time after inserting state output function calls after every ast object
     def recursively_add_tests(

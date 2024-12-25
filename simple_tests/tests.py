@@ -3,9 +3,9 @@ Sample unit test set for fizzbuzz.py.
 """
 
 import unittest
-from tests.fizzbuzz import fizzbuzz
-from tests.point import TwoPoint # type: ignore
-from tests.quicksort import quickSort #type:ignore
+from simple_tests.fizzbuzz import fizzbuzz #type:ignore
+from simple_tests.point import TwoPoint # type: ignore
+from simple_tests.quicksort import quickSort #type:ignore
 
 class TestFizzBuzz(unittest.TestCase):
     def test_fizz(self) -> None:

@@ -1,7 +1,62 @@
 import os
 from typing import List
 #from openai import OpenAI
-import openai
+import openai #type:ignore
+import together #type:ignore
+from together import Together #type:ignore
+
+#need to make a superclass
+
+class TogetherModel:
+    def __init__(self, model='Meta-Llama-3.1-70B-Instruct'):
+        self.model = model
+        self.client = Together(
+            api_key = os.environ.get("SAMBANOVA_API_KEY"),
+            base_url = "https://api.sambanova.ai/v1"
+        )
+
+    def generate_text(self, messages, params = {"temperature": 0.1, "top_p": 0.1}) -> str:
+        try:
+            response = self.client.chat.completions.create(
+            #self.client.beta.chat.completions.parse(
+                model=self.model,
+                messages=messages,
+                **params
+            )
+
+            return response.choices[0].message.content
+        
+        except Exception as e:
+            print("Error generating text: ", e)
+            return ""
+        
+            
+    def generate_json(self, messages, params, schema):
+        params['response_format'] = {"type": "json_object",
+                                     "schema": schema
+                                     }
+        return self.generate_text(messages, params)
+
+        
+    def create_message(self, prompt, systemPrompt = "") -> List:
+        messages = []
+
+        if len(systemPrompt) > 0:
+            messages.append({
+                "role":"system",
+                "content": systemPrompt
+            })
+
+        messages.append({
+            "role": "user",
+            "content": prompt
+        })
+        return messages;
+        
+
+# t = TogetherModel()
+# print(t.generate_text(t.create_message("Hi!")))
+# Yay! This works! :)
 
 class GPTModel:
     def __init__(self, model='Meta-Llama-3.1-70B-Instruct'):
@@ -36,8 +91,8 @@ class GPTModel:
         except Exception as e:
             print("Error generating text: ", e)
             return ""
-        
-    def generate_json(self, messages, params = {"temperature": 0.1, "top_p": 0.1}) -> str:
+
+    def generate_json_gpt(self, messages, params = {"temperature": 0.1, "top_p": 0.1}) -> str:
         if self.model in ['gpt-4o-mini', 'gpt-4o-2024-08-06']:
             params['response_format'] = {
                 "type": "json_schema",
@@ -68,7 +123,6 @@ class GPTModel:
 
         return self.generate_text(messages, params)
 
-    
     def create_message(self, prompt, systemPrompt = "") -> List:
         messages = []
 

@@ -1,0 +1,26 @@
+# Makefile
+.PHONY: all clean test install lint
+
+# Python version from pyvenv.cfg
+PYTHON=python3.12
+VENV=venv
+
+all: $(VENV) install test
+
+$(VENV):
+	$(PYTHON) -m venv $(VENV)
+	. $(VENV)/bin/activate && pip install -e .
+
+install:
+	. $(VENV)/bin/activate && pip install -e .
+
+test:
+	. $(VENV)/bin/activate && python run_tests.py
+
+lint:
+	. $(VENV)/bin/activate && pyright
+
+clean:
+	rm -rf $(VENV) *.egg-info __pycache__ .pytest_cache
+	find . -type d -name "__pycache__" -exec rm -r {} +
+	find . -type f -name "*.pyc" -delete

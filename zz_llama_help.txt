@@ -296,3 +296,144 @@ This code will track the state of variables after each line of the code, includi
 To use this code, simply replace `'test.py'` with the name of your Python file, and `'test.jsonl'` with the name of the output file. The output file will contain a JSON object for each line of the code, with the line number, variables, and file name.
 
 Please note that this code is a simplified example and may not work for all cases. You may need to modify it to suit your specific needs.
+
+
+To achieve this, we'll need to modify the code to track the state of variables after each line of execution. We can use the `sys.settrace` function to set a tracing function that will be called after each line of execution.
+
+Here's an example of how you can modify the code to achieve this:
+
+```python
+import sys
+import json
+
+def quicksort(arr):
+    """
+    Sorts an array using the QuickSort algorithm.
+
+    Args:
+        arr (list): The array to be sorted.
+
+    Returns:
+        list: The sorted array.
+    """
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+def trace(frame, event, arg):
+    if event == 'line':
+        variables = {k: v for k, v in frame.f_locals.items() if not k.startswith('__')}
+        print(json.dumps({
+            'line number': frame.f_lineno,
+            'variables': variables,
+            'file': frame.f_code.co_filename
+        }))
+    return trace
+
+# Example usage:
+arr = [3, 6, 8, 10, 1, 2, 1]
+sys.settrace(trace)
+quicksort(arr)
+sys.settrace(None)
+```
+
+However, this will not work as expected because the tracing function is not called for each line of execution in the recursive calls to `quicksort`. To fix this, we need to modify the tracing function to set the tracing function for each new frame.
+
+Here's an updated version of the code:
+
+```python
+import sys
+import json
+
+def quicksort(arr):
+    """
+    Sorts an array using the QuickSort algorithm.
+
+    Args:
+        arr (list): The array to be sorted.
+
+    Returns:
+        list: The sorted array.
+    """
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+def trace(frame, event, arg):
+    if event == 'call':
+        sys.settrace(trace)
+    elif event == 'line':
+        variables = {k: v for k, v in frame.f_locals.items() if not k.startswith('__')}
+        print(json.dumps({
+            'line number': frame.f_lineno,
+            'variables': variables,
+            'file': frame.f_code.co_filename
+        }))
+    elif event == 'return':
+        sys.settrace(None)
+    return trace
+
+# Example usage:
+arr = [3, 6, 8, 10, 1, 2, 1]
+sys.settrace(trace)
+quicksort(arr)
+sys.settrace(None)
+```
+
+This code will print the state of variables after each line of execution in the `quicksort` function and its recursive calls.
+
+To write the output to a JSONL file, you can modify the tracing function to write to a file instead of printing to the console:
+
+```python
+import sys
+import json
+
+def quicksort(arr):
+    """
+    Sorts an array using the QuickSort algorithm.
+
+    Args:
+        arr (list): The array to be sorted.
+
+    Returns:
+        list: The sorted array.
+    """
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+def trace(frame, event, arg):
+    if event == 'call':
+        sys.settrace(trace)
+    elif event == 'line':
+        variables = {k: v for k, v in frame.f_locals.items() if not k.startswith('__')}
+        with open('output.jsonl', 'a') as f:
+            f.write(json.dumps({
+                'line number': frame.f_lineno,
+                'variables': variables,
+                'file': frame.f_code.co_filename
+            }) + '\n')
+    elif event == 'return':
+        sys.settrace(None)
+    return trace
+
+# Example usage:
+arr = [3, 6, 8, 10, 1, 2, 1]
+sys.settrace(trace)
+quicksort(arr)
+sys.settrace(None)
+```
+
+This code will write the state of variables after each line of execution to a file named `output.jsonl`.

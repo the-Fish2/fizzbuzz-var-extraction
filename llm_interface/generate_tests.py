@@ -1,10 +1,10 @@
-from llm_interface.gpt_model import GPTModel #type:ignore
+from llm_interface.gpt_model import GPTModel, TogetherModel
 import subprocess
 import os
 import json
-from llm_interface.state_extraction import StateExtractionFormat #type:ignore
+from llm_interface.state_extraction import StateExtractionFormat
 
-def gen(model, prompt, sprompt):
+def gen(model, prompt, sprompt=""):
     messages = model.create_message(prompt, sprompt)
     response = model.generate_text(messages)
     return response
@@ -35,8 +35,8 @@ def gptGenUnitTest(model, code, alg):
 
 
 def gptGenBadCode(model, alg):
-    sprompt = "Write a piece of code that represents the skill of an intelligent but somewhat misguided coder."
-    prompt = "Return only Python code that provides an implementation of " + alg + " that compiles correctly but does not accomplish the task of correctly sorting the input." 
+    sprompt = "Write a piece of code that has no comments, several errors, is difficult to read and extremely confusing."
+    prompt = "Return Python code that provides an implementation of " + alg + " that compiles correctly but does not accomplish the task of correctly sorting the input in one function" 
     #need to fix this
     prompt += f" defined as \n def {alg.lower()}:"
     return isolateCode(gen(model, prompt, sprompt))
@@ -53,7 +53,7 @@ def gptStateExtraction(codeSnip, input, title, model):
         for j in range(1):
             i ++
 
-        Should yield the output of the jsonl file Test""" + title + """.jsonl
+        Should yield the output of the json file Test''' + title + '''.json
 
         [
             {
@@ -89,11 +89,19 @@ def gptStateExtraction(codeSnip, input, title, model):
     messages = model.create_message(prompt)
 
     #Given that I am asking llama!
-    if (model.model == 'Meta-Llama-3.1-70B-Instruct'): 
-        response = model.generate_text(messages, StateExtractionFormat.model_json_schema())
-        print(response)
+    response = "" 
+
+    if (model.model == 'Meta-Llama-3.1-70B-Instruct-Turbo' or model.model == 'Meta-Llama-3.1-8B-Instruct-Turbo'): 
+        try:
+            print( StateExtractionFormat.model_json_schema())
+            response = model.generate_json(messages, StateExtractionFormat.model_json_schema())
+            print("Response: ", response)
+        except Exception as e:
+            print(f"JSON generation failed with this error: {e}")
     else:
+        print("Exception!")
         raise Exception("This model's json generation is not implemented yet!")
+
 
     return response
 
@@ -107,6 +115,7 @@ def caseInsensitiveSplit(textToSplit, splitStr):
     return splitText
 
 def isolateCode(onlyCode):
+    print(onlyCode)
     stringToRemove = "```python"
     ind = str.index(onlyCode, stringToRemove)
     if ind != -1:
@@ -142,7 +151,7 @@ if __name__ == "__main__":
     codeGen = ["QuickSort"]
     filesPath = "llm_tests"
     files = []
-    model = GPTModel();
+    model = TogetherModel();
 
     for c in codeGen:
             
@@ -150,6 +159,10 @@ if __name__ == "__main__":
 
         code = saveCodeToFile(f'{filesPath}/code/{c}.py', gptGenCode, model=model, alg=c)
         print(code)
+
+        #note: this code still does not work because of the model's failure...
+        badcode = saveCodeToFile(f'{filesPath}/badcode/{c}.py', gptGenBadCode, model=model, alg=c)
+        #Uhh. so the only issue in this code: return quicksort(right) + [pivot] + quicksort(left) is that it's wrong. 
 
         unittest = saveCodeToFile(f'{filesPath}/test/{c}test.py', gptGenUnitTest, model=model, code=code, alg=c)
         print(unittest)
@@ -171,41 +184,37 @@ if __name__ == "__main__":
             testNames.append(unittestNames[i].split('(self):')[0])
         print(testNames)
         
+
+        #ok, taking a break re: varStates because for some reason generating JSON fails. 
         for t, tName in zip(tests[3:4], testNames[3:4]):
             if (len(t) > 0):
                 #note: t is just the name of the test, not the name of the PATH to the test. 
-                varStates = saveCodeToFile(f'{filesPath}/state_output_logs/{c}.{tName}.jsonl', gptStateExtraction, codeSnip=code, input=t, title=c, model=model)
+                varStates = saveCodeToFile(f'{filesPath}/state_output_logs/{c}.{tName}.json', gptStateExtraction, codeSnip=code, input=t, title=c, model=model)
                 print(varStates)
 
         
         #things to do:
-        #implement bad code gen and see if it can still track the code
+        #JSON extraction is not working at all. maybe just do generate text
+        #another update to error: none of the code generation is working at all! <- only re: turbo, maybe the api key doesn't work w llama instruct turbo
+
+        #done - make a new folder, put in the gpt code, and then run the subprocess of calling runtests on the new created file
+
         #figure out comparisons of files from actual state extraction
-        #make a new folder, put in the gpt code, and then run the subprocess of calling runtests on the new created file
-        #also need to automatically generate additional sample test cases on each of these
-        #then compare that runtest file to the varExtraction code here
 
+    # with open("llm_tests/tests.py", 'a') as f:
+    #     for c in codeGen:
+    #         with open(f'{filesPath}/test/{c}test.py', 'r') as f2:
+    #             f.write(f2.read())
+    #             f.write('\n')
 
-    # success = False
-    # try:
-    #     result = subprocess.run(["python", "run_functions.py", filesPath], check=True, capture_output=True, text=True)
-    #     #should generate the files!
-    #     print("Test results:\n", result.stdout)
-    #     success = True
-    # except subprocess.CalledProcessError as e:
-    #     print("An error occurred while running tests:\n", e.stderr)
+    #ModuleNotFoundError: No module named 'code.QuickSort'; 'code' is not a package
+    #can't be fixed with new __init__ file
 
-    # print(gptCode)
-    
-    # input = [1, 2, 3, 4, 5]
-    # with open('algorithm_tests/test2.py', 'r') as f:
-    #     code = f.read()
-    #     gptCode = code
-
-    # print(code)
-    
-    #varExtraction = gptCodeExtraction(model, input, gptCode);
-
-    # msgs = model.create_message("Hello! Please give me a JSON array of three possible responses you could give me. ")
-    # response = model.generate_json(msgs)
-    # print(response)
+    success = False
+    try:
+        result = subprocess.run(["python", "run_functions.py", filesPath, "state_output_logs, test"], check=True, capture_output=True, text=True)
+        #should generate the files!
+        print("Test results:\n", result.stdout)
+        success = True
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while running tests:\n", e.stderr)

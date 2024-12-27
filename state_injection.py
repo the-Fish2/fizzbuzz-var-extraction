@@ -1,5 +1,5 @@
 # """
-# This is the file for injecting state output calls into a piece of code using the AST. 
+# Contains functions for injecting state output calls into functions. 
 # """
 
 # import ast

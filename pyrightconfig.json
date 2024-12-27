@@ -1,5 +1,28 @@
 {
-    "include": ["state_output.py", "state_injection.py", "run_tests.py", "tests.py", "fizzbuzz.py"],
-    "exclude": ["__pycache__", "bin", "venv", "include", "lib", "run_functions.py"],
-    "typeCheckingMode": "basic"
+    "include": [
+        "state_output.py",
+        "state_injection.py",
+        "run_tests.py",
+        "tests.py",
+        "fizzbuzz.py"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "bin",
+        "venv",
+        "include",
+        "lib",
+        "run_functions.py"
+    ],
+    "ignore": [],
+    "defineConstant": {},
+    "typeCheckingMode": "basic",
+    "useLibraryCodeForTypes": true,
+    "reportMissingImports": true,
+    "reportMissingTypeStubs": false,
+    "pythonVersion": "3.12",
+    "pythonPlatform": "All",
+    "venvPath": ".",
+    "venv": "venv"
 }

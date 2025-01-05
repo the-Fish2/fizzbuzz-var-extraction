@@ -1,5 +1,5 @@
 import unittest
-from code.QuickSort import quicksort
+from llm_tests.code.QuickSort import quicksort
 
 
 class TestQuickSort(unittest.TestCase):

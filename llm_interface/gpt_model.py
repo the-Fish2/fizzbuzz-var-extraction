@@ -21,12 +21,12 @@ class BaseModel:
 
 
 class TogetherModel(BaseModel):
-    def __init__(self, model="Meta-Llama-3.1-70B-Instruct"):
+    def __init__(self, model="Meta-Llama-3.1-70B-Instruct", curr_api_key=os.environ.get("SAMBANOVA_API_KEY")):
         # might need turbo at the end for json mode
         # meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
         super().__init__(model)
         self.client = openai.OpenAI(
-            api_key=os.environ.get("SAMBANOVA_API_KEY"),
+            api_key=curr_api_key,
             base_url="https://api.sambanova.ai/v1",
         )
 
@@ -57,7 +57,7 @@ class GPTModel(BaseModel):
         # model="gpt-4o-mini-2024-07-18"):
         super().__init__(model)
         self.client = openai.OpenAI(
-            api_key=os.environ.get("SAMBANOVA_API_KEY"),
+            api_key= os.environ.get("OPENAI_API_KEY"),
             base_url="https://api.sambanova.ai/v1",
         )
 

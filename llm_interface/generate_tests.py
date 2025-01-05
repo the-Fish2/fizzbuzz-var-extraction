@@ -1,4 +1,4 @@
-from llm_interface.gpt_model import GPTModel, TogetherModel  # type:ignore
+from llm_interface.gpt_model import GPTModel, TogetherModel
 import subprocess
 import os
 import json
@@ -28,7 +28,7 @@ def gpt_gen_unit_test(model, code, alg):
     )
     prompt += f""" 
         import unittest
-        from code.{alg} import {alg.lower()}
+        from llm_tests.code.{alg} import {alg.lower()}
 
         class Test{alg}(unittest.TestCase):
             def test_1:
@@ -57,8 +57,10 @@ def gpt_gen_bad_code(model, alg):
 def gpt_state_extraction(code_snip, input, title, model):
     # OK pausing on json_schema
 
+    print("INPUT for state extraction: ", input, title)
+
     prompt1 = (
-        "Given this piece of code, return a JSON list of elements that represent the state of variables that have been declared after each line of the code when run on the input"
+        "Given this piece of code, return a JSON list of elements that represent the state of variables that have been declared after each line of the code when run on the following input array: "
         + str(input)
         + " ."
     )
@@ -66,47 +68,55 @@ def gpt_state_extraction(code_snip, input, title, model):
     prompt2 = (
         """For example, the file 'FileOne.py' with code
 
-        i = 3;
+        i = 3
         #For Loop
         arr = [3, 1]
         for j in range(len(arr)):
-            i ++
+            i += 1
 
         Should yield the output of the json file Test"""
         + title
         + """.json
 
+        ```json 
+
         [
             {
-                "line number": 1,
+                "code_line": i = 3,
                 "variables": {"i": "3"}, 
-                "file": FileOne
+                "file": "FileOne.py"
             },
             {
-                "line number": 3,
+                "code_line": "#For Loop"
+                "variables": {"i": "3"}, 
+                "file": "FileOne.py"
+            },
+                "code_line": "arr = [3, 1]"
                 "variables": {"i": "3", "arr": "[3, 1]"}, 
-                "file": FileOne
+                "file": "FileOne.py"
             },
             {
-                "line number": 4,
+                "code_line": "for j in range(len(arr)):",
                 "variables": {"i": "3", "arr": "[3, 1]", "j": "0"}, 
-                "file": FileOne
+                "file": "FileOne.py"
             }
             {
-                "line number": 5,
+                "code_line": "i += 1",
                 "variables": {"i": "4", "arr": "[3, 1]", "j": "0"}, 
-                "file": FileOne
+                "file": "FileOne.py"
             },
             {
-                "line number": 4,
+                "code_line": "for j in range(len(arr)):",
                 "variables": {"i": "4", "arr": "[3, 1]", "j": "1"}, 
-                "file": FileOne
+                "file": "FileOne.py"
             },
-                "line number": 5,
+                "code_line": "i += 1",
                 "variables": {"i": "5", "arr": "[3, 1]", "j": "1"}, 
-                "file": FileOne
+                "file": "FileOne.py"
             }
         ]
+
+        ```
 
         """
     )
@@ -157,12 +167,12 @@ def case_insensitive_split(text_to_split, split_str):
 def isolate_code(only_code, string_ext):
     print(only_code)
     string_to_remove = "```" + string_ext
-    ind = str.index(only_code, string_to_remove)
+    ind = str.find(only_code, string_to_remove)
     if ind != -1:
         only_code = only_code[ind + len(string_to_remove) :]
     string_to_remove = "```"
 
-    ind = str.index(only_code, string_to_remove)
+    ind = str.find(only_code, string_to_remove)
     if ind != -1:
         only_code = only_code[:ind]
 
@@ -189,10 +199,16 @@ if __name__ == "__main__":
     # model = GPTModel();
     # Generate code!
 
-    code_gen = ["QuickSort"]
+    #expectations: bad qs, bad ms, good pnc
+    code_gen = ["QuickSort", "MergeSort"]
+                #, "MergeSort", "PrimeNumberChecking"]
     file_path = "llm_tests"
     files = []
-    model = TogetherModel()
+    model = TogetherModel(model="Meta-Llama-3.1-70B-Instruct")
+    models = [model]
+            #   , 
+            #   TogetherModel(model="Meta-Llama-3.1-8B-Instruct"), 
+            #   TogetherModel(model="Meta-Llama-3.2-1B-Instruct")]
 
     for c in code_gen:
 
@@ -220,10 +236,14 @@ if __name__ == "__main__":
 
         # need to go through every test in the unit tests and then run this on each of them. this will also fix up the input.
         # problem: this is hardcoding for arrays
+
+        #to use algorithm_tests: should modify unit test as follows
+        # unittest = save_code_to_file("algorithm_tests/tests.py")
+
         unittests = case_insensitive_split(unittest, f"{c}(")
         tests = []
         for i in range(len(unittests)):
-            nextStr = unittests[i].split(")")[0]
+            nextStr = unittests[i].split(")")[0].strip()
             if nextStr[0] == "[" and nextStr[-1] == "]":
                 # notably it doesn't have to be evaluated as an array! I can just pass it in as a string since I'm using it as a string when feeding to gpt
                 tests.append(eval(nextStr))
@@ -232,16 +252,20 @@ if __name__ == "__main__":
         testNames = []
         unittestNames = unittest.split("def ")
         for i in range(1, len(unittestNames)):
-            testNames.append(unittestNames[i].split("(self):")[0])
+            testNames.append(unittestNames[i].split("(self):")[0].strip())
         print(testNames)
 
         # ok, taking a break re: varStates because for some reason generating JSON fails.
         # It looks like gpt_state_extraction
-        for t, tName in zip(tests, testNames):
-            if len(t) > 0:
-                # note: t is just the name of the test, not the name of the PATH to the test.
+
+        for curr_model in models:
+
+            for t, tName in zip(tests, testNames):
+                print(f"Test Name: {tName}, Test Input: {t}")
+
+                    # note: t is just the name of the test, not the name of the PATH to the test.
                 varStates = save_code_to_file(
-                    f"{file_path}/state_output_logs/Test{c}.{tName}.json",
+                    f"{file_path}/state_output_logs/{curr_model.model}/Test{c}.{tName}.json",
                     gpt_state_extraction,
                     code_snip=code,
                     input=t,
@@ -259,10 +283,23 @@ if __name__ == "__main__":
         # figure out comparisons of files from actual state extraction
 
     # with open("llm_tests/tests.py", 'a') as f:
-    #     for c in codeGen:
+    #     for c in code_gen:
     #         with open(f'{file_path}/test/{c}test.py', 'r') as f2:
     #             f.write(f2.read())
     #             f.write('\n')
+
+    with open(f"{file_path}/tests.py", 'w') as combined_tests:
+        # Add imports
+        # combined_tests.write("import unittest\n")
+        # for c in code_gen:
+        #     combined_tests.write(f"from llm_tests.code.{c} import {c.lower()}\n")
+        # combined_tests.write("\n")
+    
+        # Add test classes
+        for c in code_gen:
+            with open(f"{file_path}/test/{c}test.py", 'r') as individual_test:
+                combined_tests.write(individual_test.read())
+                combined_tests.write('\n')
 
     # ModuleNotFoundError: No module named 'code.QuickSort'; 'code' is not a package
     # can't be fixed with new __init__ file
@@ -277,7 +314,12 @@ if __name__ == "__main__":
         # should generate the files!
         print("Test results:\n", result.stdout)
         success = True
+    except subprocess.CalledProcessError as e:
+        print(f"Error running tests: {e}")
+        print(f"Error output: {e.stderr}")
+        raise  # Re-raise to indicate failure
     except Exception as e:
-        print(e)
+        print(f"Unexpected error: {e}")
+        raise
     # except subprocess.CalledProcessError as e:
     #     print("An error occurred while running tests:\n", e.stderr)

@@ -65,7 +65,7 @@ def state_output(
 
     output_entry = {
         "line_number": loc,
-        # "code_line": code_line,
+        "code_line": code_line,
         "variables": user_defined_vars,
         "file": filepath,
     }

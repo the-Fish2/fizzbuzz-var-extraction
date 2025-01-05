@@ -89,49 +89,75 @@ class ModifiedTestRunner(TestRunner):
         score = 0
         gpt_output = []
 
-        llm_test_file_path = f"{test_id[0]}/state_output_logs/{test_id[2]}.{test_id[3]}.json"
+        llm_test_root_path = f"{test_id[0]}/state_output_logs"
 
-        if os.path.isfile(llm_test_file_path):
-            print("Is this ever true?")
-            with open(llm_test_file_path, "r") as f:
-                gpt_output = json.load(f)
-                f.close()
+        for model_name in os.listdir(llm_test_root_path):
+            llm_test_file_path = llm_test_root_path + f"/{model_name}/" + f"{test_id[2]}.{test_id[3]}.json"
 
-            with open(f"state_output_logs/{'.'.join(test_id)}.jsonl", "r") as f:
-                correct_output = [json.loads(line) for line in f]
-                f.close()
-            # note this score is going to be like 0....
-            for gpt_out, correct_out in zip(gpt_output, correct_output):
-                # if gpt_out['file'].lower() != correct_out['file'].lower()
-                # or gpt_out['line_number'] != correct_out['line_number']: <- score will be even more like zero
-                if not isinstance(gpt_out, dict) or 'variables' not in gpt_out:
-                    #score is 0
-                    continue
-                 
-                for var in correct_out["variables"]:
-                    if var in gpt_out["variables"]:
-                        ratio = Levenshtein.ratio(
-                            correct_out["variables"][var], gpt_out["variables"][var]
-                        )
-                    else:
-                        ratio = 1
-                    print(ratio)
-                    score += ratio
+            if os.path.isfile(llm_test_file_path):
+                with open(llm_test_file_path, "r") as f:
+                    gpt_output = json.load(f)
+                    f.close()
+
+                with open(f"state_output_logs/{'.'.join(test_id)}.jsonl", "r") as f:
+                    correct_output = [json.loads(line) for line in f]
+                    f.close()
+
+                correct_index = -1
+                total_lines = 0
+                while correct_index < min(len(gpt_output), len(correct_output)) - 1:
+                    correct_index += 1
+
+                    gpt_out = gpt_output[correct_index]
+                    total_lines += 1
+                    correct_out = correct_output[correct_index]
+
+                    # if gpt_out['file'].lower() != correct_out['file'].lower()
+                    # or gpt_out['line_number'] != correct_out['line_number']: <- score will be even more like zero
+                    if not isinstance(gpt_out, dict) or 'variables' not in gpt_out or 'code_line' not in gpt_out:
+                        #correct_index += 1
+                        #score is 0
+                        continue
                 
-                score /= (1 if len(correct_out["variables"]) == 0 else len(correct_out["variables"]))
+                    if gpt_out['code_line'] not in correct_out['code_line']:
+                        for new_index in range(correct_index, len(correct_output)):
+                            potential_match = correct_output[new_index]
+                            if gpt_out['code_line'] in potential_match['code_line'] :
+                                # Move correct_out to align with gpt_out
+                                correct_index = new_index
+                                correct_out = correct_output[new_index]
+                                break
+                        else:
+                            #correct_index += 1
+                            continue
 
-                print(gpt_out)
-                print(correct_out)
+                    for var in correct_out["variables"]:
+                        if var in gpt_out["variables"]:
+                            ratio = Levenshtein.ratio(
+                                correct_out["variables"][var], gpt_out["variables"][var]
+                            )
+                        else:
+                            ratio = 1
+                        print(ratio)
+                        score += ratio
+                    
+                    score /= (1 if len(correct_out["variables"]) == 0 else len(correct_out["variables"]))
 
-                # Very easy for misaligned output (ie, first line output in file 1 might be different from file 2)
+                    print("Comparison of outputs!")
+                    print(gpt_out)
+                    print(correct_out)
 
-            score /= len(correct_output)
+                    #correct_index += 1
 
-            with open(f"{test_id[0]}/test_scores.txt", "a") as f:
-                f.write(f"Total Score {test_id[2]}.{test_id[3]}: {score}\n\n")
+                    # Very easy for misaligned output (ie, first line output in file 1 might be different from file 2)
 
-            print(score)
-            return score
+                score /= total_lines
+
+                with open(f"{test_id[0]}/test_scores/{model_name}.txt", "a") as f:
+                    f.write(f"{test_id[2]}.{test_id[3]}: {score}\n\n")
+
+                print(score)
+                return score
 
         return -1
 

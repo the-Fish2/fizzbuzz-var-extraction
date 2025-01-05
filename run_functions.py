@@ -104,8 +104,9 @@ class CodeInjector:
                         keywords=[],
                     )
                 )
-                new_body.append(state_output_call)
+                
                 new_body.append(stmt)
+                new_body.append(state_output_call) #trying out this change to see if aligns better to llm output? if not can change the llm prompting but this seems better
 
             node.body = new_body
 

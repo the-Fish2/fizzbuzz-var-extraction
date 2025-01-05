@@ -5,10 +5,10 @@ Modified test runner for state output injection.
 import unittest
 from importlib import import_module
 # from state_injection import function_injection
+import Levenshtein
 import sys
 import os
 import json
-
 
 # This is how the tests are being run, which is pretty stock testrunner code with the python unittests library.
 class TestRunner:
@@ -43,31 +43,34 @@ class ModifiedTestRunner(TestRunner):
     def run_tests(self) -> unittest.TestResult:
         # runner = unittest.TextTestRunner(stream = self.stdout_loc)
         result = unittest.TestResult()
-        def run_test_case(test):
-            if isinstance(test, unittest.TestCase):
-                test_id = test.id()  # Use the test's ID as a text value
-                if (os.path.isdir("state_output_logs")):
-                    to_delete = os.listdir("state_output_logs")
-                    for f in to_delete:
-                        #should be jsonl if wanting to delete
-                        if f.endswith('.json'): 
-                            os.remove(f)
-                sys.stdout = open(f"state_output_logs/{test_id}.jsonl", 'a')
-                test(result)
+        def run_test_case(test: unittest.TestCase):
+            #if isinstance(test, unittest.TestCase): #this check is rendered unnecessary from below code
+            test_id = test.id()  # Use the test's ID as a text value
+            if (os.path.isdir("state_output_logs")):
+                to_delete = os.listdir("state_output_logs")
+                for f in to_delete:
+                    #should be jsonl if wanting to delete
+                    if f.endswith('.json'): 
+                        os.remove(f)
+            sys.stdout = open(f"state_output_logs/{test_id}.jsonl", 'a')
+            test(result)
 
-        totalScore = 0;
+        score = 0;
         testCount = 0;
 
         for test in self.test_suite:
             if isinstance(test, unittest.TestSuite):
-                for sub_test in test:  # Iterate through sub-tests in the suite
-                    run_test_case(sub_test)
-                    score += self.compare_to_GPT(sub_test)
-                    testCount += 1
+                for sub_test in test:
+                    #need this isinstance to not throw error in compare_to_gpt
+                    if isinstance(sub_test, unittest.TestCase):  # Iterate through sub-tests in the suite
+                        run_test_case(sub_test)
+                        score += self.compare_to_GPT(sub_test)
+                        testCount += 1
             else:
-                run_test_case(test)
-                score += self.compare_to_GPT(test)
-                testCount += 1
+                if isinstance(sub_test, unittest.TestCase):
+                    run_test_case(test)
+                    score += self.compare_to_GPT(test)
+                    testCount += 1
             
         score /= testCount
         print(score)   
@@ -77,26 +80,42 @@ class ModifiedTestRunner(TestRunner):
     
     def compare_to_GPT(self, test: unittest.TestCase) -> float:
         testId = test.id().split(".")
+        sys.stdout = self.stdout_loc
+        score = 0
         gptOutput = []
 
-        if (os.path.isfile(f'{testId[0]}/state_output_logs/{testId[3]}.jsonl')):
-            with open(f'{testId[0]}/state_output_logs/{testId[3]}.jsonl', 'r') as f:
-                gptOutput = [json.loads(line) for line in f]
+        llmTestFilePath = f'{testId[0]}/state_output_logs/{testId[2]}.{testId[3]}.json'
+
+        if (os.path.isfile(llmTestFilePath)):
+            print("Is this ever true?")
+            with open(llmTestFilePath, 'r') as f:
+                gptOutput = json.load(f)
+                f.close()
 
             with open(f"state_output_logs/{'.'.join(testId)}.jsonl", 'r') as f:
                 correctOutput = [json.loads(line) for line in f]
+                f.close()
+            #note this score is going to be like 0....
+            for gptO, correctO in zip(gptOutput, correctOutput):
+                #if gptO['file'].lower() != correctO['file'].lower()
+                #or gptO['line_number'] != correctO['line_number']: <- score will be even more like zero
+                for var in correctO['variables']:
+                    if var in gptO['variables']:
+                        ratio = Levenshtein.ratio(correctO['variables'][var], gptO['variables'][var])
+                    else:
+                        ratio = 1
+                    print(ratio)
+                    score += ratio
 
-            score = min(len(gptOutput), len(correctOutput))
-
-            for gptO, correctO in gptOutput, correctOutput:
-                if gptO['file'] != correctO['file'] or gptO['variables'] != correctO['variables'] or gptO['line_number'] != correctO['line_number']:
-                    score -= 1
-                
-                #Very easy for misaligned output (ie, first line output in file 1 might be different from file 2)
                 print(gptO)
                 print(correctO)
+                
+                #Very easy for misaligned output (ie, first line output in file 1 might be different from file 2)
             
-            score /= max(len(gptOutput), len(correctOutput))
+            score /= len(correctOutput)
+            
+            with open(f'{testId[0]}/test_scores.txt', 'a') as f:
+                f.write(f"Total Score {testId[2]}.{testId[3]}: {score}\n\n")
 
             print(score)
             return score

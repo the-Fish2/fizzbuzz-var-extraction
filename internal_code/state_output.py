@@ -63,9 +63,11 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
     
     output_entry = {
         "line_number": loc,
-        "code_line": codeLine,
+        # "code_line": codeLine,
         "variables": user_defined_vars,
         "file": filepath,
     }
 
-    print(output_entry)
+    json_output_entry = json.dumps(output_entry)
+    
+    print(json_output_entry)

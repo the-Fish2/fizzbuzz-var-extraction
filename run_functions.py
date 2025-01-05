@@ -148,7 +148,7 @@ def inject_codebase(root_dir: str, exclude_dirs: Optional[List[str]] = None) -> 
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python code_injector.py <root_directory> [exclude_dir1,exclude_dir2,...]")
+        print("Usage: python run_functions.py <root_directory> [exclude_dir1,exclude_dir2,...]")
         sys.exit(1)
 
     root_dir = sys.argv[1]
@@ -167,7 +167,7 @@ if __name__ == "__main__":
         print(f"Successfully processed files: {len(injector.processed_files)}")
 
         try:
-            result = subprocess.run(["python", "run_tests.py", root_dir], check=True, capture_output=True, text=True)
+            result = subprocess.run(["python", "run_tests.py", root_dir], check=True, text=True)
             print("Test results:\n", result.stdout)
         except subprocess.CalledProcessError as e:
             print("An error occurred while running tests:\n", e.stderr)

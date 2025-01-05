@@ -1,11 +1,8 @@
 import os
 from typing import List
-#from openai import OpenAI
 import openai 
 import together
 from together import Together
-
-#need to make a superclass
 
 class BaseModel:
     def __init__(self, model):
@@ -34,23 +31,20 @@ class TogetherModel(BaseModel):
         #might need turbo at the end for json mode
         # meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo
         super().__init__(model)
-        self.client = Together(
-            api_key = os.environ.get("SAMBANOVA_API_KEY"),
-            base_url = "https://api.sambanova.ai/v1"
+        self.client = openai.OpenAI(
+            api_key=os.environ.get("SAMBANOVA_API_KEY"),
+            base_url="https://api.sambanova.ai/v1",
         )
 
     def generate_text(self, messages, params = {"temperature": 0.1, "top_p": 0.1}) -> str:
-        print(params)
         try:
-            print(params)
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
                 **params
             )
 
-            print(response)
-            return response.choices[0].message.content
+            return response.choices[0].message.content if response is not None else ""
         
         except Exception as e:
             print("Error generating text: ", e)
@@ -63,13 +57,9 @@ class TogetherModel(BaseModel):
             "type": "json_object",
             "schema": schema
         }
-        # params['response_format'] = "json_object"
-        # params['schema'] = schema
+        params['response_format'] = "json_object"
+        params['schema'] = schema
         return self.generate_text(messages, params)
-
-# t = TogetherModel()
-# print(t.generate_text(t.create_message("Hi!")))
-# Yay! This works! :)
 
 class GPTModel(BaseModel):
     def __init__(self, model='Meta-Llama-3.1-70B-Instruct'):
@@ -90,7 +80,7 @@ class GPTModel(BaseModel):
     
             text_response = response.choices[0].message.parsed
 
-            return text_response
+            return text_response if text_response is not None else ""
     
         except Exception as e:
             print("Error generating text: ", e)

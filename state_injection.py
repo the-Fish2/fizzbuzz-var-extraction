@@ -1,5 +1,5 @@
 # """
-# Contains functions for injecting state output calls into functions. 
+# Contains functions for injecting state output calls into functions.
 # """
 
 # import ast

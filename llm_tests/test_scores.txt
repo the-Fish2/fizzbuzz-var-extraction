@@ -1,10 +1,10 @@
-Total Score TestQuickSort.test_already_sorted_array: 1.4990196078431368
+Total Score TestQuickSort.test_already_sorted_array: 0.11834087350217866
 
-Total Score TestQuickSort.test_array_with_duplicates: 0.7049492174492177
+Total Score TestQuickSort.test_array_with_duplicates: 0.011804083296421682
 
-Total Score TestQuickSort.test_array_with_negative_numbers: 0.1446280991735537
+Total Score TestQuickSort.test_array_with_negative_numbers: 0.07082813729830775
 
-Total Score TestQuickSort.test_single_element_array: 0.5
+Total Score TestQuickSort.test_single_element_array: 0.0
 
-Total Score TestQuickSort.test_unsorted_array: 0.5106082874601391
+Total Score TestQuickSort.test_unsorted_array: 0.04240688409669891
 

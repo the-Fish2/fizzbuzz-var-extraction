@@ -1,5 +1,5 @@
 """
-This is the file for the state output function, which is used to print out the variables in the local scope of a function. This file is imported as text into every unit tests so that the test can run state_output calls.
+this is the file for the state output function, which is used to print out the variables in the local scope of a function. this file is imported as text into every unit tests so that the test can run state_output calls.
 """
 
 from typing import Any, Dict, List
@@ -7,10 +7,12 @@ import os
 import json
 
 
-def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: str) -> None:
+def state_output(
+    local_vars: Dict[str, Any], code_line: str, loc: int, filepath: str
+) -> None:
 
-    # This is a helper function for determining if a variable is a user-defined variable.
-    def testName(name: str, value: Any) -> bool:
+    # this is a helper function for determining if a variable is a user-defined variable.
+    def test_name(name: str, value: Any) -> bool:
         exclude_sections = [
             "In",
             "Out",
@@ -24,7 +26,7 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
             "ast",
         ]
         if (
-            #Removing __name__, __doc__, __package__, __loader__, __spec__, __file__, __cached__, and __builtins__
+            # removing __name__, __doc__, __package__, __loader__, __spec__, __file__, __cached__, and __builtins__
             not name.startswith("__")
             and name not in dir(__builtins__)
             and not callable(value)
@@ -32,10 +34,10 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
         ):
             return True
         return False
-    
+
     def custom_repr(obj: Any, depth: int = 0, max_depth: int = 2) -> str:
         """
-            Here, obj is any object that is defined with a class. This is basically a way of outputting any such user-defined object. Max-depth refers to if an object is defined with a reference to another class, and so forth, for determining the number of nested classes that will be iterated through before stopping.
+        here, obj is any object that is defined with a class. this is basically a way of outputting any such user-defined object. max-depth refers to if an object is defined with a reference to another class, and so forth, for determining the number of nested classes that will be iterated through before stopping.
         """
         if depth > max_depth:
             return ""
@@ -45,7 +47,7 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
         ):
             attrs: List[str] = []
             for k in dir(obj.__class__):
-                if testName(k, getattr(obj, k)):
+                if test_name(k, getattr(obj, k)):
                     v = getattr(obj, k)
                     v_repr = custom_repr(v, depth + 1, max_depth)
                     attrs.append(f"{k}: {v_repr}")
@@ -58,16 +60,16 @@ def state_output(local_vars: Dict[str, Any], codeLine: str, loc: int, filepath: 
     user_defined_vars = {
         name: custom_repr(value)
         for name, value in all_vars.items()
-        if testName(name, value)
+        if test_name(name, value)
     }
-    
+
     output_entry = {
         "line_number": loc,
-        # "code_line": codeLine,
+        # "code_line": code_line,
         "variables": user_defined_vars,
         "file": filepath,
     }
 
     json_output_entry = json.dumps(output_entry)
-    
+
     print(json_output_entry)

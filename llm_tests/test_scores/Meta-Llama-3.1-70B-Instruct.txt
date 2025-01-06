@@ -1,28 +1,16 @@
-TestQuickSort.test_unsorted_array: 0.1057325293753865
+TestMergeSort.test_already_sorted_array: 0.06626190476190477
 
-TestQuickSort.test_already_sorted_array: 0.2711463844797178
+TestMergeSort.test_empty_array: 1.0
 
-TestQuickSort.test_array_with_duplicates: 0.1034152295515932
+TestMergeSort.test_single_element_array: 0.6666666666666666
 
-TestQuickSort.test_array_with_negative_numbers: 0.13596057982421617
+TestQuickSort.test_already_sorted_array: 0.5904761904761904
 
-TestQuickSort.test_empty_array: 0.0
+TestQuickSort.test_array_with_duplicates: 0.07514604736826959
 
-TestQuickSort.test_single_element_array: 0.0
+TestQuickSort.test_array_with_negative_numbers: 0.14506012506012506
 
-TestQuickSort.test_unsorted_array: 0.1057325293753865
+TestQuickSort.test_empty_array: 1.0
 
-TestQuickSort.test_already_sorted_array: 0.2711463844797178
-
-TestQuickSort.test_array_with_duplicates: 0.1034152295515932
-
-TestQuickSort.test_array_with_negative_numbers: 0.13596057982421617
-
-TestQuickSort.test_empty_array: 0.0
-
-TestQuickSort.test_single_element_array: 0.0
-
-TestQuickSort.test_unsorted_array: 0.1057325293753865
-
-TestMergeSort.test_already_sorted_array: 0.05171050779148838
+TestQuickSort.test_single_element_array: 1.0
 

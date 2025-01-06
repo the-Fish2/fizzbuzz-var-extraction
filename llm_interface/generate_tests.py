@@ -1,17 +1,29 @@
-from llm_interface.gpt_model import GPTModel, TogetherModel
+from llm_interface.gpt_model import BaseModel, GPTModel, TogetherModel
 import subprocess
 import os
 import json
+from typing import List, Dict, Any, Callable
 from llm_interface.state_extraction import StateExtractionFormat
 
+"""
+This file works with an LLM to generate code and state extractions.
+"""
 
-def gen(model, prompt, sys_prompt=""):
+
+def gen(model: BaseModel, prompt: str, sys_prompt: str = ""):
+    """
+    Given a prompt and possibly a system prompt, creates a message in a format usable for the model and then generates and returns the model's answer to the prompt.  
+    """
     messages = model.create_message(prompt, sys_prompt)
     response = model.generate_text(messages)
-    return response
+    return str(response)
 
 
-def gpt_gen_code(model, alg):
+def gpt_gen_code(model: BaseModel, alg: str):
+    """
+    This function has an input model generate code that implements an input algorithm 
+    """
+
     sys_prompt = "Write only a piece of code with no text that represents the skill of an intermediate coder."
     prompt = "Return only Python code that provides a working implementation of " + alg
     prompt += f" defined as \n def {alg.lower()}:"
@@ -19,7 +31,11 @@ def gpt_gen_code(model, alg):
     return isolate_code(gen(model, prompt, sys_prompt), "python")
 
 
-def gpt_gen_unit_test(model, code, alg):
+def gpt_gen_unit_test(model: BaseModel, code: str, alg: str):
+    """
+    This function has an input model generate unit tests for an input code that implements an algorithm to ascertain it works in all possible cases.
+    """
+    
     sys_prompt = "Write only a piece of code with no text."
     prompt = (
         "Please write several unit tests for this code in one testcase "
@@ -41,7 +57,12 @@ def gpt_gen_unit_test(model, code, alg):
     return isolate_code(gen(model, prompt, sys_prompt), "python")
 
 
-def gpt_gen_bad_code(model, alg):
+def gpt_gen_bad_code(model: BaseModel, alg: str):
+    """
+    This function has an input model generate poorly written code that implements an input algorithm.
+    The code should compile (no runtime errors) but will fail at actually implementing the algorithm
+    """
+        
     sys_prompt = "Write a piece of code that has no comments, several errors, is difficult to read and extremely confusing."
     prompt = (
         "Return Python code that provides an implementation of "
@@ -54,14 +75,16 @@ def gpt_gen_bad_code(model, alg):
 
 
 # Need to address multiple files of output...
-def gpt_state_extraction(code_snip, input, title, model):
-    # OK pausing on json_schema
+def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: str = ""):
+    """
+    This function takes in a model and code and the test that the code is running on. It returns the model-generated intermediate variable states of the code as the code runs. 
+    """
 
     print("INPUT for state extraction: ", input, title)
 
     prompt1 = (
         "Given this piece of code, return a JSON list of elements that represent the state of variables that have been declared after each line of the code when run on the following input array: "
-        + str(input)
+        + str(test_input)
         + " ."
     )
 
@@ -110,6 +133,7 @@ def gpt_state_extraction(code_snip, input, title, model):
                 "variables": {"i": "4", "arr": "[3, 1]", "j": "1"}, 
                 "file": "FileOne.py"
             },
+            {
                 "code_line": "i += 1",
                 "variables": {"i": "5", "arr": "[3, 1]", "j": "1"}, 
                 "file": "FileOne.py"
@@ -121,7 +145,7 @@ def gpt_state_extraction(code_snip, input, title, model):
         """
     )
 
-    prompt = prompt1 + "\n" + code_snip + "\n" + prompt2
+    prompt = prompt1 + "\n" + code + "\n" + prompt2
 
     sys_prompt = "You are like a debugger in that you do not write code, but you can track the line-by-line variable states of code."
 
@@ -136,9 +160,10 @@ def gpt_state_extraction(code_snip, input, title, model):
     ):
         try:
             print(StateExtractionFormat.model_json_schema())
-            response = model.generate_json(
-                messages, StateExtractionFormat.model_json_schema()
-            )
+            if isinstance(model, TogetherModel):
+                response = model.generate_json(
+                    messages, StateExtractionFormat.model_json_schema()
+                )
             print("Response: ", response)
         except Exception as e:
             print(f"JSON .generation failed with this error: {e}")
@@ -148,13 +173,18 @@ def gpt_state_extraction(code_snip, input, title, model):
         response = model.generate_text(messages)
 
     print(response)
-    response = isolate_code(response, "json")
+    response = isolate_code(str(response), "json")
 
     #response = json.dumps(response)
     return response
 
 
-def case_insensitive_split(text_to_split, split_str):
+#Perhaps should be in new file? case_insensitive_split and isolate_code because they're string operations
+#but they're pretty specific to this use
+def case_insensitive_split(text_to_split: str, split_str: str):
+    """
+    Splits an input text string based on a split string that ignores the case of both the text to split and the string that splits the text. For example, case_insensitive_split("1 HELLO 2 hello 3 HelLo", "hello") will give [1, 2, 3]
+    """
     split_text = []
     last_ind = 0
     for start_ind in range(len(text_to_split)):
@@ -164,7 +194,11 @@ def case_insensitive_split(text_to_split, split_str):
     return split_text
 
 
-def isolate_code(only_code, string_ext):
+def isolate_code(only_code: str, string_ext: str):
+    """
+    Typically, models will return code in ``` ``` brackets, whether the code is json or python. This strips additional words in the model input and leaves just the code portion. It takes in the code and the string extension to remove. 
+    """
+
     print(only_code)
     string_to_remove = "```" + string_ext
     ind = str.find(only_code, string_to_remove)
@@ -179,7 +213,11 @@ def isolate_code(only_code, string_ext):
     return only_code
 
 
-def save_code_to_file(file_path, gen_func, **args):
+def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
+    """
+    This checks if a file with the file_path has already been created, and if so, it returns the information in that file.
+    If not, it regenerates what should be in the file with a function and further inputs to that function and then returns the new values created. 
+    """
 
     if os.path.isfile(f"{file_path}"):
         with open(f"{file_path}", "r") as f:
@@ -240,20 +278,22 @@ if __name__ == "__main__":
         #to use algorithm_tests: should modify unit test as follows
         # unittest = save_code_to_file("algorithm_tests/tests.py")
 
-        unittests = case_insensitive_split(unittest, f"{c}(")
-        tests = []
-        for i in range(len(unittests)):
-            nextStr = unittests[i].split(")")[0].strip()
-            if nextStr[0] == "[" and nextStr[-1] == "]":
-                # notably it doesn't have to be evaluated as an array! I can just pass it in as a string since I'm using it as a string when feeding to gpt
-                tests.append(eval(nextStr))
-        print(tests)
+        if unittest is not None:
 
-        testNames = []
-        unittestNames = unittest.split("def ")
-        for i in range(1, len(unittestNames)):
-            testNames.append(unittestNames[i].split("(self):")[0].strip())
-        print(testNames)
+            unittests = case_insensitive_split(unittest, f"{c}(")
+            tests = []
+            for i in range(len(unittests)):
+                nextStr = unittests[i].split(")")[0].strip()
+                if nextStr[0] == "[" and nextStr[-1] == "]":
+                    # notably it doesn't have to be evaluated as an array! I can just pass it in as a string since I'm using it as a string when feeding to gpt
+                    tests.append(eval(nextStr))
+            print(tests)
+
+            testNames = []
+            unittestNames = unittest.split("def ")
+            for i in range(1, len(unittestNames)):
+                testNames.append(unittestNames[i].split("(self):")[0].strip())
+            print(testNames)
 
         # ok, taking a break re: varStates because for some reason generating JSON fails.
         # It looks like gpt_state_extraction
@@ -267,10 +307,10 @@ if __name__ == "__main__":
                 varStates = save_code_to_file(
                     f"{file_path}/state_output_logs/{curr_model.model}/Test{c}.{tName}.json",
                     gpt_state_extraction,
-                    code_snip=code,
-                    input=t,
-                    title=c,
                     model=model,
+                    code=code,
+                    test_input=t,
+                    title=c,
                 )
                 print(varStates)
 

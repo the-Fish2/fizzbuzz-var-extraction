@@ -1,5 +1,7 @@
 #Not default:
 state_output_logs/
+node_modules/
+bin/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

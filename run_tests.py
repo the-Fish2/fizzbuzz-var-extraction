@@ -23,7 +23,9 @@ class TestRunner:
 
     def load_tests_from_module(self, module_name: str) -> None:
         module = import_module(module_name)
-        tests = unittest.defaultTestLoader.loadTestsFromModule(module) #their function not mine
+        tests = unittest.defaultTestLoader.loadTestsFromModule(
+            module
+        )  # their function not mine
 
         for test in tests:
             test_suite = unittest.TestSuite([test])
@@ -43,6 +45,9 @@ class ModifiedTestRunner(TestRunner):
         self.stdout_loc = sys.stdout
 
     def run_tests(self) -> unittest.TestResult:
+        """
+        This takes in several test suites and runs all of the test cases inside the suite with recursion. 
+        """
         # runner = unittest.TextTestRunner(stream = self.stdout_loc)
         result = unittest.TestResult()
 
@@ -84,6 +89,11 @@ class ModifiedTestRunner(TestRunner):
         return result
 
     def compare_to_GPT(self, test: unittest.TestCase) -> float:
+
+        """
+        This function compares the test state extraction attained through the automatic generation and AST-based code with an LLM's generation of variable state extraction to determine how accurate the LLM's extraction is.  
+        """
+        
         test_id = test.id().split(".")
         sys.stdout = self.stdout_loc
         score = 0
@@ -92,12 +102,19 @@ class ModifiedTestRunner(TestRunner):
         llm_test_root_path = f"{test_id[0]}/state_output_logs"
 
         for model_name in os.listdir(llm_test_root_path):
-            llm_test_file_path = llm_test_root_path + f"/{model_name}/" + f"{test_id[2]}.{test_id[3]}.json"
+            llm_test_file_path = (
+                llm_test_root_path
+                + f"/{model_name}/"
+                + f"{test_id[2]}.{test_id[3]}.json"
+            )
 
             if os.path.isfile(llm_test_file_path):
-                with open(llm_test_file_path, "r") as f:
-                    gpt_output = json.load(f)
-                    f.close()
+                try:
+                    with open(llm_test_file_path, "r") as f:
+                        gpt_output = json.load(f)
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON from {llm_test_file_path}: {e}")
+                    continue
 
                 with open(f"state_output_logs/{'.'.join(test_id)}.jsonl", "r") as f:
                     correct_output = [json.loads(line) for line in f]
@@ -114,23 +131,29 @@ class ModifiedTestRunner(TestRunner):
 
                     # if gpt_out['file'].lower() != correct_out['file'].lower()
                     # or gpt_out['line_number'] != correct_out['line_number']: <- score will be even more like zero
-                    if not isinstance(gpt_out, dict) or 'variables' not in gpt_out or 'code_line' not in gpt_out:
-                        #correct_index += 1
-                        #score is 0
+                    if (
+                        not isinstance(gpt_out, dict)
+                        or "variables" not in gpt_out
+                        or "code_line" not in gpt_out
+                    ):
+                        # correct_index += 1
+                        # score is 0
                         continue
-                
-                    if gpt_out['code_line'] not in correct_out['code_line']:
+
+                    #Aligning lines as closesly as possible
+                    if gpt_out["code_line"] not in correct_out["code_line"]:
                         for new_index in range(correct_index, len(correct_output)):
                             potential_match = correct_output[new_index]
-                            if gpt_out['code_line'] in potential_match['code_line'] :
+                            if gpt_out["code_line"] in potential_match["code_line"]:
                                 # Move correct_out to align with gpt_out
                                 correct_index = new_index
                                 correct_out = correct_output[new_index]
                                 break
                         else:
-                            #correct_index += 1
+                            # correct_index += 1
                             continue
 
+                    #Determining score
                     for var in correct_out["variables"]:
                         if var in gpt_out["variables"]:
                             ratio = Levenshtein.ratio(
@@ -140,19 +163,20 @@ class ModifiedTestRunner(TestRunner):
                             ratio = 1
                         print(ratio)
                         score += ratio
-                    
-                    score /= (1 if len(correct_out["variables"]) == 0 else len(correct_out["variables"]))
+
+                    score /= (
+                        1
+                        if len(correct_out["variables"]) == 0
+                        else len(correct_out["variables"])
+                    )
 
                     print("Comparison of outputs!")
                     print(gpt_out)
                     print(correct_out)
 
-                    #correct_index += 1
-
-                    # Very easy for misaligned output (ie, first line output in file 1 might be different from file 2)
-
                 score /= total_lines
 
+                #Saving score
                 with open(f"{test_id[0]}/test_scores/{model_name}.txt", "a") as f:
                     f.write(f"{test_id[2]}.{test_id[3]}: {score}\n\n")
 

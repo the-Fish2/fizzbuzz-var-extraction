@@ -1,10 +1,10 @@
 import unittest
 
-from algorithm_tests.test1 import dijkstra 
-from algorithm_tests.test2 import merge_sort 
-from algorithm_tests.test3 import a_star  
-from algorithm_tests.test4 import depth_first_search  
-from algorithm_tests.test5 import knapsack  
+from algorithm_tests.test1 import dijkstra
+from algorithm_tests.test2 import merge_sort
+from algorithm_tests.test3 import a_star
+from algorithm_tests.test4 import depth_first_search
+from algorithm_tests.test5 import knapsack
 
 
 class TestDijkstra(unittest.TestCase):

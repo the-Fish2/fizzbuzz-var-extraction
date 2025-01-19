@@ -277,7 +277,6 @@ def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
         with open(f"{file_path}", "r") as f:
             only_code = f.read()
     else:
-        print("yeet?")
         only_code = gen_func(**args)
         print(only_code)
 
@@ -291,10 +290,10 @@ def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
 if __name__ == "__main__":
     # model = GPTModel();
     # Generate code!
-    print("has it started?")
+    print("code started progress")
 
     # expectations: bad qs, bad ms, good pnc
-    code_gen = ["BinarySort"]
+    code_gen = ["BinarySearch"]
     # , "MergeSort", "PrimeNumberChecking"]
     file_path = "llm_tests"
     files = []
@@ -306,11 +305,7 @@ if __name__ == "__main__":
 
     for c in code_gen:
 
-        print("heyyy")
-
         files.append(f"{file_path}/code/{c}.py")
-
-        print("hi!")
 
         code = save_code_to_file(
             f"{file_path}/code/{c}.py", gpt_gen_code, model=model, alg=c
@@ -407,7 +402,7 @@ if __name__ == "__main__":
     success = False
     try:
         result = subprocess.run(
-            ["python", "run_functions.py", file_path, "state_output_logs, test"],
+            ["python", "run_functions.py", file_path, "state_output_logs, test_scores"],
             check=True,
             text=True,
         )

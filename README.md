@@ -1,20 +1,10 @@
-This is the sample unit test for FizzBuzz!
-
-FizzBuzz: printing out values of fizz and buzz
-
-Intermediary states are currently being extracted
-
-To run, build a venv:
+Make a venv:
 
 python3 -m venv ~./xxxxxxx
 source ~/xxxxxxx/fizzbuzz-var-extraction/bin/activate
 
-Then, just run 
+To get the correct state output for the LLM tests: python run_functions.py llm_tests state_output_logs,test_scores
 
-python run_tests.py 
+Generally, this is of the form python run_functions.py [directory for state output extraction] [directories to exclude]
 
-to see variable extraction at each test case function
-
-Most important files with the state output code are run_tests.py (code for running state injection on unit tests) and state_injection.py (code for building state injection)
-
-I'm working on the file run_functions.py for extracting intermediary states from each function called in the code base.
+To generate LLM state output, 

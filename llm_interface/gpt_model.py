@@ -37,7 +37,7 @@ class TogetherModel(BaseModel):
             base_url="https://api.sambanova.ai/v1",
         )
 
-    def generate_text(self, messages: List, params: Dict={"temperature": 0.1, "top_p": 0.1}) -> str:
+    def generate_text(self, messages: List, params: Dict={"temperature": 0.1, "top_p": 0.1, "max_tokens": 100000}) -> str:
         try:
             response = self.client.chat.completions.create(
                 model=self.model, messages=messages, **params

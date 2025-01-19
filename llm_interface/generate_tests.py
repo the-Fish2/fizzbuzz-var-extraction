@@ -15,7 +15,9 @@ def gen(model: BaseModel, prompt: str, sys_prompt: str = ""):
     Given a prompt and possibly a system prompt, creates a message in a format usable for the model and then generates and returns the model's answer to the prompt.  
     """
     messages = model.create_message(prompt, sys_prompt)
+    print("launch model gen")
     response = model.generate_text(messages)
+    print("end model gen")
     return str(response)
 
 
@@ -91,11 +93,15 @@ def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: st
     prompt2 = (
         """For example, the file 'FileOne.py' with code
 
+        def increment_1(x):
+            x += 1
+
         i = 3
         #For Loop
         arr = [3, 1]
+
         for j in range(len(arr)):
-            i += 1
+            increment(i)
 
         Should yield the output of the json file Test"""
         + title
@@ -105,7 +111,12 @@ def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: st
 
         [
             {
-                "code_line": i = 3,
+                "code_line": 'def increment(x):'
+                "variables": { }, 
+                "file": "FileOne.py"
+            },
+            {
+                "code_line": "i = 3",
                 "variables": {"i": "3"}, 
                 "file": "FileOne.py"
             },
@@ -124,7 +135,19 @@ def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: st
                 "file": "FileOne.py"
             }
             {
-                "code_line": "i += 1",
+                "code_line": "increment(i)",
+                "variables": {"i": "3", "arr": "[3, 1]", "j": "0"}, 
+                "file": "FileOne.py"
+            },
+            {
+                "code_line": "def increment(x):",
+                "increment_1_variables": {x: "3"}
+                "variables": {"i": "3", "arr": "[3, 1]", "j": "0"}, 
+                "file": "FileOne.py"
+            },
+            {
+                "code_line": "  x += 1",
+                "increment_1_variables": {x: "4"}
                 "variables": {"i": "4", "arr": "[3, 1]", "j": "0"}, 
                 "file": "FileOne.py"
             },
@@ -134,10 +157,22 @@ def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: st
                 "file": "FileOne.py"
             },
             {
-                "code_line": "i += 1",
-                "variables": {"i": "5", "arr": "[3, 1]", "j": "1"}, 
+                "code_line": "increment(i)",
+                "variables": {"i": "4", "arr": "[3, 1]", "j": "1"}, 
                 "file": "FileOne.py"
-            }
+            },
+            {
+                "code_line": "def increment(x):",
+                "increment_1_variables": {x: "4"}
+                "variables": {"i": "4", "arr": "[3, 1]", "j": "1"}, 
+                "file": "FileOne.py"
+            },
+            {
+                "code_line": "  x += 1",
+                "increment_1_variables": {x: "5"}
+                "variables": {"i": "5", "arr": "[3, 1]", "j": "1"}, 
+                "file": "FileOne.py" 
+            },
         ]
 
         ```
@@ -173,7 +208,7 @@ def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: st
         response = model.generate_text(messages)
 
     print(response)
-    response = isolate_code(str(response), "json")
+    response = clean_llm_output(isolate_code(str(response), "json"))
 
     #response = json.dumps(response)
     return response
@@ -213,6 +248,22 @@ def isolate_code(only_code: str, string_ext: str):
     return only_code
 
 
+def clean_llm_output(input_str):
+    """
+    Incorrect truncation of JSON output is causing the code that calculates scores to fail.
+    (note: currently untested)
+    """
+    if (input_str[-1] != "]"):
+        if (input_str[-1] != '}'):
+            if (input_str[-1] != '}'):
+                if (input_str[-1] != "\""):
+                    input_str += "\""
+                input_str += "}"
+            input_str += "}"
+        input_str += "]"
+    return input_str
+
+
 def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
     """
     This checks if a file with the file_path has already been created, and if so, it returns the information in that file.
@@ -223,6 +274,7 @@ def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
         with open(f"{file_path}", "r") as f:
             only_code = f.read()
     else:
+        print("yeet?")
         only_code = gen_func(**args)
         print(only_code)
 
@@ -236,9 +288,10 @@ def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
 if __name__ == "__main__":
     # model = GPTModel();
     # Generate code!
+    print("has it started?")
 
     #expectations: bad qs, bad ms, good pnc
-    code_gen = ["QuickSort", "MergeSort"]
+    code_gen = ["BinarySort"]
                 #, "MergeSort", "PrimeNumberChecking"]
     file_path = "llm_tests"
     files = []
@@ -250,7 +303,11 @@ if __name__ == "__main__":
 
     for c in code_gen:
 
+        print("heyyy")
+
         files.append(f"{file_path}/code/{c}.py")
+
+        print('hi!')
 
         code = save_code_to_file(
             f"{file_path}/code/{c}.py", gpt_gen_code, model=model, alg=c

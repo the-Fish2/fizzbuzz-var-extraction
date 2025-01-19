@@ -81,9 +81,9 @@ class ModifiedTestRunner(TestRunner):
                     run_test_case(test)
                     score += self.compare_to_GPT(test)
                     test_count += 1
-
-        score /= test_count
-        print(score)
+        if test_count != 0:
+            score /= test_count
+        print("Score", score)
 
         # result = runner.run(self.test_suite)
         return result
@@ -95,7 +95,7 @@ class ModifiedTestRunner(TestRunner):
         """
         
         test_id = test.id().split(".")
-        sys.stdout = self.stdout_loc
+        #sys.stdout = self.stdout_loc
         score = 0
         gpt_output = []
 
@@ -154,15 +154,19 @@ class ModifiedTestRunner(TestRunner):
                             continue
 
                     #Determining score
-                    for var in correct_out["variables"]:
-                        if var in gpt_out["variables"]:
-                            ratio = Levenshtein.ratio(
-                                correct_out["variables"][var], gpt_out["variables"][var]
-                            )
-                        else:
-                            ratio = 1
-                        print(ratio)
-                        score += ratio
+                    var_titles = [field for field in correct_out if field in gpt_out and "variables" in str(field)]
+
+                    for title in var_titles:
+
+                        for var in correct_out[title]:
+                            if var in gpt_out[title]:
+                                ratio = Levenshtein.ratio(
+                                    correct_out["variables"][var], gpt_out["variables"][var]
+                                )
+                            else:
+                                ratio = 1
+                            print(ratio)
+                            score += ratio
 
                     score /= (
                         1
@@ -170,11 +174,21 @@ class ModifiedTestRunner(TestRunner):
                         else len(correct_out["variables"])
                     )
 
+                    score /= (
+                        1
+                        if len(var_titles) == 0
+                        else len(var_titles)
+                    )
+
                     print("Comparison of outputs!")
                     print(gpt_out)
                     print(correct_out)
 
-                score /= total_lines
+                score /= (
+                        1
+                        if total_lines == 0
+                        else total_lines
+                )
 
                 #Saving score
                 with open(f"{test_id[0]}/test_scores/{model_name}.txt", "a") as f:

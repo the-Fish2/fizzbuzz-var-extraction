@@ -5,6 +5,7 @@ this is the file for the state output function, which is used to print out the v
 from typing import Any, Dict, List
 import os
 import json
+import inspect
 
 
 def state_output(
@@ -72,4 +73,74 @@ def state_output(
 
     json_output_entry = json.dumps(output_entry)
 
+    # print(json_output_entry)
+
+    # SPLIT FOR NEW FUNCTION VARIABLES
+
+     # Get the current frame and its caller
+    current_frame = inspect.currentframe()
+    if current_frame is None:
+        return
+    
+    caller_frame = current_frame.f_back
+    if caller_frame is None:
+        return
+
+    # Get the function name if we're inside a function
+    function_name = None
+    if code_line.strip().startswith('def '):
+        # This is a function definition
+        function_name = code_line.split('def ')[1].split('(')[0].strip()
+    else:
+        # We're inside a function
+        function_code = caller_frame.f_code
+        if function_code.co_name != '<module>':
+            function_name = function_code.co_name
+
+    # Get all variables
+    all_vars = local_vars.copy()
+    
+    # Separate function variables from global variables
+    function_vars = {}
+    global_vars = {}
+    
+    if function_name:
+        # Get the globals that existed before the function call
+        global_vars = {
+            name: custom_repr(value)
+            for name, value in caller_frame.f_globals.items()
+            if test_name(name, value)
+        }
+        
+        # Get the local variables specific to this function
+        function_vars = {
+            name: custom_repr(value)
+            for name, value in all_vars.items()
+            if test_name(name, value) and name not in global_vars
+        }
+    else:
+        # If we're not in a function, all variables are considered global
+        global_vars = {
+            name: custom_repr(value)
+            for name, value in all_vars.items()
+            if test_name(name, value)
+        }
+
+    # Create the output entry
+    output_entry = {
+        "line_number": loc,
+        "code_line": code_line,
+        "variables": global_vars,  # This now contains only global variables
+        "file": filepath,
+    }
+
+    # Add function-specific variables if we're in a function
+    if function_name:
+        output_entry[f"{function_name}_variables"] = function_vars
+
+    json_output_entry = json.dumps(output_entry)
     print(json_output_entry)
+
+    # Clean up the frame references
+    del current_frame
+    del caller_frame

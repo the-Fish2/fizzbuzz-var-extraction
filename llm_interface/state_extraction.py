@@ -6,6 +6,7 @@ from typing import Dict, List
 These are the JSON schema that specify the format of output for the variable state extraction.
 """
 
+
 class StateExtraction(BaseModel):
     line_number: int = Field(description="Line number of state extracted")
     variables: Dict[str, str] = Field(

@@ -12,7 +12,7 @@ This file works with an LLM to generate code and state extractions.
 
 def gen(model: BaseModel, prompt: str, sys_prompt: str = ""):
     """
-    Given a prompt and possibly a system prompt, creates a message in a format usable for the model and then generates and returns the model's answer to the prompt.  
+    Given a prompt and possibly a system prompt, creates a message in a format usable for the model and then generates and returns the model's answer to the prompt.
     """
     messages = model.create_message(prompt, sys_prompt)
     print("launch model gen")
@@ -23,7 +23,7 @@ def gen(model: BaseModel, prompt: str, sys_prompt: str = ""):
 
 def gpt_gen_code(model: BaseModel, alg: str):
     """
-    This function has an input model generate code that implements an input algorithm 
+    This function has an input model generate code that implements an input algorithm
     """
 
     sys_prompt = "Write only a piece of code with no text that represents the skill of an intermediate coder."
@@ -37,7 +37,7 @@ def gpt_gen_unit_test(model: BaseModel, code: str, alg: str):
     """
     This function has an input model generate unit tests for an input code that implements an algorithm to ascertain it works in all possible cases.
     """
-    
+
     sys_prompt = "Write only a piece of code with no text."
     prompt = (
         "Please write several unit tests for this code in one testcase "
@@ -64,7 +64,7 @@ def gpt_gen_bad_code(model: BaseModel, alg: str):
     This function has an input model generate poorly written code that implements an input algorithm.
     The code should compile (no runtime errors) but will fail at actually implementing the algorithm
     """
-        
+
     sys_prompt = "Write a piece of code that has no comments, several errors, is difficult to read and extremely confusing."
     prompt = (
         "Return Python code that provides an implementation of "
@@ -79,7 +79,7 @@ def gpt_gen_bad_code(model: BaseModel, alg: str):
 # Need to address multiple files of output...
 def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: str = ""):
     """
-    This function takes in a model and code and the test that the code is running on. It returns the model-generated intermediate variable states of the code as the code runs. 
+    This function takes in a model and code and the test that the code is running on. It returns the model-generated intermediate variable states of the code as the code runs.
     """
 
     print("INPUT for state extraction: ", input, title)
@@ -210,12 +210,12 @@ def gpt_state_extraction(model: BaseModel, code: str, test_input: str, title: st
     print(response)
     response = clean_llm_output(isolate_code(str(response), "json"))
 
-    #response = json.dumps(response)
+    # response = json.dumps(response)
     return response
 
 
-#Perhaps should be in new file? case_insensitive_split and isolate_code because they're string operations
-#but they're pretty specific to this use
+# Perhaps should be in new file? case_insensitive_split and isolate_code because they're string operations
+# but they're pretty specific to this use
 def case_insensitive_split(text_to_split: str, split_str: str):
     """
     Splits an input text string based on a split string that ignores the case of both the text to split and the string that splits the text. For example, case_insensitive_split("1 HELLO 2 hello 3 HelLo", "hello") will give [1, 2, 3]
@@ -223,7 +223,10 @@ def case_insensitive_split(text_to_split: str, split_str: str):
     split_text = []
     last_ind = 0
     for start_ind in range(len(text_to_split)):
-        if text_to_split[start_ind : start_ind + len(split_str)].lower() == split_str.lower():
+        if (
+            text_to_split[start_ind : start_ind + len(split_str)].lower()
+            == split_str.lower()
+        ):
             split_text.append(text_to_split[last_ind:start_ind])
             last_ind = start_ind + len(split_str)
     return split_text
@@ -231,7 +234,7 @@ def case_insensitive_split(text_to_split: str, split_str: str):
 
 def isolate_code(only_code: str, string_ext: str):
     """
-    Typically, models will return code in ``` ``` brackets, whether the code is json or python. This strips additional words in the model input and leaves just the code portion. It takes in the code and the string extension to remove. 
+    Typically, models will return code in ``` ``` brackets, whether the code is json or python. This strips additional words in the model input and leaves just the code portion. It takes in the code and the string extension to remove.
     """
 
     print(only_code)
@@ -253,11 +256,11 @@ def clean_llm_output(input_str):
     Incorrect truncation of JSON output is causing the code that calculates scores to fail.
     (note: currently untested)
     """
-    if (input_str[-1] != "]"):
-        if (input_str[-1] != '}'):
-            if (input_str[-1] != '}'):
-                if (input_str[-1] != "\""):
-                    input_str += "\""
+    if input_str[-1] != "]":
+        if input_str[-1] != "}":
+            if input_str[-1] != "}":
+                if input_str[-1] != '"':
+                    input_str += '"'
                 input_str += "}"
             input_str += "}"
         input_str += "]"
@@ -267,7 +270,7 @@ def clean_llm_output(input_str):
 def save_code_to_file(file_path: str, gen_func: Callable[..., Any], **args):
     """
     This checks if a file with the file_path has already been created, and if so, it returns the information in that file.
-    If not, it regenerates what should be in the file with a function and further inputs to that function and then returns the new values created. 
+    If not, it regenerates what should be in the file with a function and further inputs to that function and then returns the new values created.
     """
 
     if os.path.isfile(f"{file_path}"):
@@ -290,16 +293,16 @@ if __name__ == "__main__":
     # Generate code!
     print("has it started?")
 
-    #expectations: bad qs, bad ms, good pnc
+    # expectations: bad qs, bad ms, good pnc
     code_gen = ["BinarySort"]
-                #, "MergeSort", "PrimeNumberChecking"]
+    # , "MergeSort", "PrimeNumberChecking"]
     file_path = "llm_tests"
     files = []
     model = TogetherModel(model="Meta-Llama-3.1-70B-Instruct")
     models = [model]
-            #   , 
-            #   TogetherModel(model="Meta-Llama-3.1-8B-Instruct"), 
-            #   TogetherModel(model="Meta-Llama-3.2-1B-Instruct")]
+    #   ,
+    #   TogetherModel(model="Meta-Llama-3.1-8B-Instruct"),
+    #   TogetherModel(model="Meta-Llama-3.2-1B-Instruct")]
 
     for c in code_gen:
 
@@ -307,7 +310,7 @@ if __name__ == "__main__":
 
         files.append(f"{file_path}/code/{c}.py")
 
-        print('hi!')
+        print("hi!")
 
         code = save_code_to_file(
             f"{file_path}/code/{c}.py", gpt_gen_code, model=model, alg=c
@@ -332,7 +335,7 @@ if __name__ == "__main__":
         # need to go through every test in the unit tests and then run this on each of them. this will also fix up the input.
         # problem: this is hardcoding for arrays
 
-        #to use algorithm_tests: should modify unit test as follows
+        # to use algorithm_tests: should modify unit test as follows
         # unittest = save_code_to_file("algorithm_tests/tests.py")
 
         if unittest is not None:
@@ -360,7 +363,7 @@ if __name__ == "__main__":
             for t, tName in zip(tests, testNames):
                 print(f"Test Name: {tName}, Test Input: {t}")
 
-                    # note: t is just the name of the test, not the name of the PATH to the test.
+                # note: t is just the name of the test, not the name of the PATH to the test.
                 varStates = save_code_to_file(
                     f"{file_path}/state_output_logs/{curr_model.model}/Test{c}.{tName}.json",
                     gpt_state_extraction,
@@ -385,18 +388,18 @@ if __name__ == "__main__":
     #             f.write(f2.read())
     #             f.write('\n')
 
-    with open(f"{file_path}/tests.py", 'w') as combined_tests:
+    with open(f"{file_path}/tests.py", "w") as combined_tests:
         # Add imports
         # combined_tests.write("import unittest\n")
         # for c in code_gen:
         #     combined_tests.write(f"from llm_tests.code.{c} import {c.lower()}\n")
         # combined_tests.write("\n")
-    
+
         # Add test classes
         for c in code_gen:
-            with open(f"{file_path}/test/{c}test.py", 'r') as individual_test:
+            with open(f"{file_path}/test/{c}test.py", "r") as individual_test:
                 combined_tests.write(individual_test.read())
-                combined_tests.write('\n')
+                combined_tests.write("\n")
 
     # ModuleNotFoundError: No module named 'code.QuickSort'; 'code' is not a package
     # can't be fixed with new __init__ file

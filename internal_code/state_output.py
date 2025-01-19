@@ -77,33 +77,33 @@ def state_output(
 
     # SPLIT FOR NEW FUNCTION VARIABLES
 
-     # Get the current frame and its caller
+    # Get the current frame and its caller
     current_frame = inspect.currentframe()
     if current_frame is None:
         return
-    
+
     caller_frame = current_frame.f_back
     if caller_frame is None:
         return
 
     # Get the function name if we're inside a function
     function_name = None
-    if code_line.strip().startswith('def '):
+    if code_line.strip().startswith("def "):
         # This is a function definition
-        function_name = code_line.split('def ')[1].split('(')[0].strip()
+        function_name = code_line.split("def ")[1].split("(")[0].strip()
     else:
         # We're inside a function
         function_code = caller_frame.f_code
-        if function_code.co_name != '<module>':
+        if function_code.co_name != "<module>":
             function_name = function_code.co_name
 
     # Get all variables
     all_vars = local_vars.copy()
-    
+
     # Separate function variables from global variables
     function_vars = {}
     global_vars = {}
-    
+
     if function_name:
         # Get the globals that existed before the function call
         global_vars = {
@@ -111,7 +111,7 @@ def state_output(
             for name, value in caller_frame.f_globals.items()
             if test_name(name, value)
         }
-        
+
         # Get the local variables specific to this function
         function_vars = {
             name: custom_repr(value)

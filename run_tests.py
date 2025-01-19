@@ -46,7 +46,7 @@ class ModifiedTestRunner(TestRunner):
 
     def run_tests(self) -> unittest.TestResult:
         """
-        This takes in several test suites and runs all of the test cases inside the suite with recursion. 
+        This takes in several test suites and runs all of the test cases inside the suite with recursion.
         """
         # runner = unittest.TextTestRunner(stream = self.stdout_loc)
         result = unittest.TestResult()
@@ -89,13 +89,12 @@ class ModifiedTestRunner(TestRunner):
         return result
 
     def compare_to_GPT(self, test: unittest.TestCase) -> float:
+        """
+        This function compares the test state extraction attained through the automatic generation and AST-based code with an LLM's generation of variable state extraction to determine how accurate the LLM's extraction is.
+        """
 
-        """
-        This function compares the test state extraction attained through the automatic generation and AST-based code with an LLM's generation of variable state extraction to determine how accurate the LLM's extraction is.  
-        """
-        
         test_id = test.id().split(".")
-        #sys.stdout = self.stdout_loc
+        # sys.stdout = self.stdout_loc
         score = 0
         gpt_output = []
 
@@ -140,7 +139,7 @@ class ModifiedTestRunner(TestRunner):
                         # score is 0
                         continue
 
-                    #Aligning lines as closesly as possible
+                    # Aligning lines as closesly as possible
                     if gpt_out["code_line"] not in correct_out["code_line"]:
                         for new_index in range(correct_index, len(correct_output)):
                             potential_match = correct_output[new_index]
@@ -153,15 +152,20 @@ class ModifiedTestRunner(TestRunner):
                             # correct_index += 1
                             continue
 
-                    #Determining score
-                    var_titles = [field for field in correct_out if field in gpt_out and "variables" in str(field)]
+                    # Determining score
+                    var_titles = [
+                        field
+                        for field in correct_out
+                        if field in gpt_out and "variables" in str(field)
+                    ]
 
                     for title in var_titles:
 
                         for var in correct_out[title]:
                             if var in gpt_out[title]:
                                 ratio = Levenshtein.ratio(
-                                    correct_out["variables"][var], gpt_out["variables"][var]
+                                    correct_out["variables"][var],
+                                    gpt_out["variables"][var],
                                 )
                             else:
                                 ratio = 1
@@ -174,23 +178,15 @@ class ModifiedTestRunner(TestRunner):
                         else len(correct_out["variables"])
                     )
 
-                    score /= (
-                        1
-                        if len(var_titles) == 0
-                        else len(var_titles)
-                    )
+                    score /= 1 if len(var_titles) == 0 else len(var_titles)
 
                     print("Comparison of outputs!")
                     print(gpt_out)
                     print(correct_out)
 
-                score /= (
-                        1
-                        if total_lines == 0
-                        else total_lines
-                )
+                score /= 1 if total_lines == 0 else total_lines
 
-                #Saving score
+                # Saving score
                 with open(f"{test_id[0]}/test_scores/{model_name}.txt", "a") as f:
                     f.write(f"{test_id[2]}.{test_id[3]}: {score}\n\n")
 

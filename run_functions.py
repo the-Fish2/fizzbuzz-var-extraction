@@ -99,21 +99,23 @@ class CodeInjector:
                         func=ast.Name(id="state_output", ctx=ast.Load()),
                         args=[
                             ast.Name(id="locals()", ctx=ast.Load()),
-                            ast.Constant(value=prev_stmt), #changing the code line up one
+                            ast.Constant(
+                                value=prev_stmt
+                            ),  # changing the code line up one
                             ast.Constant(value=stmt.lineno),
                             ast.Constant(value=filepath.stem),
                         ],
                         keywords=[],
                     )
                 )
-                prev_stmt = stmt #trying out this change instead for alignment up. 
+                prev_stmt = stmt  # trying out this change instead for alignment up.
 
                 new_body.append(
                     state_output_call
                 )  # trying out this change to see if aligns better to llm output? if not can change the llm prompting but this seems better. issue -> return functions for example do not have state output call at the end. or how about end of if block. changing with prev_statmt instead
 
                 new_body.append(stmt)
-               
+
             node.body = new_body
 
         # Recursively process all child nodes
@@ -167,7 +169,7 @@ if __name__ == "__main__":
     root_dir = sys.argv[1]
     remove_arg = True if len(sys.argv) > 2 and sys.argv[2] == "remove" else False
     skip_tests = True if len(sys.argv) > 2 and sys.argv[2] == "skip_tests" else False
-    
+
     if len(sys.argv) > 3 and skip_tests:
         exclude_dirs = sys.argv[4].split(",")
     else:
@@ -175,8 +177,6 @@ if __name__ == "__main__":
             exclude_dirs = sys.argv[2].split(",")
         else:
             exclude_dirs = None
-
-    
 
     if remove_arg:
         injector = CodeInjector(root_dir, exclude_dirs)

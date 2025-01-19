@@ -24,6 +24,7 @@ class TogetherModel(BaseModel):
     """
     Model with TogetherAI
     """
+
     def __init__(
         self,
         model="Meta-Llama-3.1-70B-Instruct",
@@ -37,7 +38,11 @@ class TogetherModel(BaseModel):
             base_url="https://api.sambanova.ai/v1",
         )
 
-    def generate_text(self, messages: List, params: Dict={"temperature": 0.1, "top_p": 0.1, "max_tokens": 100000}) -> str:
+    def generate_text(
+        self,
+        messages: List,
+        params: Dict = {"temperature": 0.1, "top_p": 0.1, "max_tokens": 100000},
+    ) -> str:
         try:
             response = self.client.chat.completions.create(
                 model=self.model, messages=messages, **params
@@ -52,7 +57,7 @@ class TogetherModel(BaseModel):
     def generate_json(
         self, messages: List, schema: Dict, params={"temperature": 0.1, "top_p": 0.1}
     ):
-        #schema should be of form model_json_schema()
+        # schema should be of form model_json_schema()
         params = params.copy()
         params["response_format"] = {"type": "json_object", "schema": schema}
         params["response_format"] = "json_object"
@@ -64,6 +69,7 @@ class GPTModel(BaseModel):
     """
     Model with OpenAI
     """
+
     def __init__(self, model="Meta-Llama-3.1-70B-Instruct"):
         # model="gpt-4o-mini-2024-07-18"):
         super().__init__(model)
@@ -72,7 +78,9 @@ class GPTModel(BaseModel):
             base_url="https://api.sambanova.ai/v1",
         )
 
-    def generate_text(self, messages: List, params: Dict ={"temperature": 0.1, "top_p": 0.1}) -> str:
+    def generate_text(
+        self, messages: List, params: Dict = {"temperature": 0.1, "top_p": 0.1}
+    ) -> str:
         try:
             response = self.client.beta.chat.completions.parse(
                 model=self.model, messages=messages, **params
@@ -87,7 +95,7 @@ class GPTModel(BaseModel):
             return ""
 
     def generate_json_gpt(
-        self, messages: List, params: Dict ={"temperature": 0.1, "top_p": 0.1}
+        self, messages: List, params: Dict = {"temperature": 0.1, "top_p": 0.1}
     ) -> str:
         if self.model in ["gpt-4o-mini", "gpt-4o-2024-08-06"]:
             params["response_format"] = {

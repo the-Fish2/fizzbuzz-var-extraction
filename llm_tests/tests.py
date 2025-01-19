@@ -27,6 +27,7 @@ class TestQuickSort(unittest.TestCase):
     def test_array_with_zero(self):
         self.assertEqual(quicksort([3, 0, 8, 10, 1, 2, 1]), [0, 1, 1, 2, 3, 8, 10])
 
+
 import unittest
 from llm_tests.code.MergeSort import mergesort
 
@@ -61,4 +62,3 @@ class TestMergeSort(unittest.TestCase):
         self.assertEqual(
             mergesort([4, 0, 9, 6, 5, 1, 8, 3, 7]), [0, 1, 3, 4, 5, 6, 7, 8, 9]
         )
-

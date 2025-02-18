@@ -1,0 +1,39 @@
+TestMergeSort.test_already_sorted_array: 0.06626190476190477
+
+TestMergeSort.test_array_with_negative_numbers: 0.06056698917748918
+
+TestMergeSort.test_empty_array: 1.0
+
+TestMergeSort.test_single_element_array: 0.6666666666666666
+
+TestQuickSort.test_already_sorted_array: 0.5904761904761904
+
+TestQuickSort.test_array_with_duplicates: 0.07514604736826959
+
+TestQuickSort.test_array_with_negative_numbers: 0.14506012506012506
+
+TestQuickSort.test_empty_array: 1.0
+
+TestQuickSort.test_single_element_array: 1.0
+
+--
+TestMergeSort.test_already_sorted_array: 0.292358803986711
+
+TestMergeSort.test_array_with_duplicates: 0.3185011709601873
+
+TestMergeSort.test_array_with_negative_numbers: 0.29439383706764133
+
+TestMergeSort.test_empty_array: 0.0
+
+TestMergeSort.test_single_element_array: 0.0
+
+TestQuickSort.test_already_sorted_array: 0.0
+
+TestQuickSort.test_array_with_duplicates: 0.5242081545307352
+
+TestQuickSort.test_array_with_negative_numbers: 0.5024253656581849
+
+TestQuickSort.test_empty_array: 0.0
+
+TestQuickSort.test_single_element_array: 0.0
+

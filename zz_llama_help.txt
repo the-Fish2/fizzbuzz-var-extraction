@@ -1,0 +1,439 @@
+To track the state of variables after each line of the code, we can use the `pdb` module in Python, which provides a debugger. However, for this task, we will use a custom solution that involves parsing the code and executing it line by line.
+
+Below is a Python script that can track the state of variables after each line of the code.
+
+```python
+import ast
+import json
+import importlib.util
+import inspect
+import sys
+
+class CodeTracker:
+    def __init__(self, filename):
+        self.filename = filename
+        self.code = open(filename, 'r').read()
+        self.tree = ast.parse(self.code)
+        self.variables = {}
+        self.lines = []
+
+    def track_variables(self):
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Assign):
+                self.assign_variables(node)
+            elif isinstance(node, ast.For):
+                self.for_loop(node)
+            elif isinstance(node, ast.FunctionDef):
+                self.function_def(node)
+            elif isinstance(node, ast.If):
+                self.if_statement(node)
+            elif isinstance(node, ast.While):
+                self.while_loop(node)
+            elif isinstance(node, ast.AugAssign):
+                self.aug_assign(node)
+
+    def assign_variables(self, node):
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                self.variables[target.id] = self.eval_node(node.value)
+                self.lines.append({
+                    'line number': node.lineno,
+                    'variables': self.variables.copy(),
+                    'file': self.filename
+                })
+
+    def for_loop(self, node):
+        for target in node.target.elts:
+            if isinstance(target, ast.Name):
+                self.variables[target.id] = self.eval_node(node.iter)
+                self.lines.append({
+                    'line number': node.lineno,
+                    'variables': self.variables.copy(),
+                    'file': self.filename
+                })
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def function_def(self, node):
+        for arg in node.args.args:
+            self.variables[arg.arg] = None
+            self.lines.append({
+                'line number': node.lineno,
+                'variables': self.variables.copy(),
+                'file': self.filename
+            })
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def if_statement(self, node):
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def while_loop(self, node):
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def aug_assign(self, node):
+        if isinstance(node.target, ast.Name):
+            self.variables[node.target.id] = self.eval_node(node.value)
+            self.lines.append({
+                'line number': node.lineno,
+                'variables': self.variables.copy(),
+                'file': self.filename
+            })
+
+    def track_variables_in_body(self, node, lineno):
+        if isinstance(node, ast.Assign):
+            self.assign_variables(node)
+        elif isinstance(node, ast.For):
+            self.for_loop(node)
+        elif isinstance(node, ast.FunctionDef):
+            self.function_def(node)
+        elif isinstance(node, ast.If):
+            self.if_statement(node)
+        elif isinstance(node, ast.While):
+            self.while_loop(node)
+        elif isinstance(node, ast.AugAssign):
+            self.aug_assign(node)
+
+    def eval_node(self, node):
+        if isinstance(node, ast.Num):
+            return node.n
+        elif isinstance(node, ast.Str):
+            return node.s
+        elif isinstance(node, ast.Name):
+            return self.variables.get(node.id)
+        elif isinstance(node, ast.List):
+            return [self.eval_node(x) for x in node.elts]
+        elif isinstance(node, ast.Tuple):
+            return tuple(self.eval_node(x) for x in node.elts)
+        elif isinstance(node, ast.Dict):
+            return {self.eval_node(k): self.eval_node(v) for k, v in zip(node.keys, node.values)}
+        elif isinstance(node, ast.Call):
+            return self.eval_node(node.func)(*self.eval_node(node.args))
+        else:
+            return None
+
+    def save_to_jsonl(self, filename):
+        with open(filename, 'w') as f:
+            for line in self.lines:
+                json.dump(line, f)
+                f.write('\n')
+
+def main():
+    tracker = CodeTracker('test.py')
+    tracker.track_variables()
+    tracker.save_to_jsonl('test.jsonl')
+
+if __name__ == '__main__':
+    main()
+```
+
+However, this code will not work for your specific use case because it does not handle function calls and imports. To handle these, you would need to use a more complex approach, possibly involving the `ast` module and the `inspect` module.
+
+Here is a revised version of the code that handles function calls and imports:
+
+```python
+import ast
+import json
+import importlib.util
+import inspect
+import sys
+
+class CodeTracker:
+    def __init__(self, filename):
+        self.filename = filename
+        self.code = open(filename, 'r').read()
+        self.tree = ast.parse(self.code)
+        self.variables = {}
+        self.lines = []
+        self.imports = {}
+
+    def track_variables(self):
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Assign):
+                self.assign_variables(node)
+            elif isinstance(node, ast.For):
+                self.for_loop(node)
+            elif isinstance(node, ast.FunctionDef):
+                self.function_def(node)
+            elif isinstance(node, ast.If):
+                self.if_statement(node)
+            elif isinstance(node, ast.While):
+                self.while_loop(node)
+            elif isinstance(node, ast.AugAssign):
+                self.aug_assign(node)
+            elif isinstance(node, ast.Import):
+                self.import_module(node)
+            elif isinstance(node, ast.Call):
+                self.function_call(node)
+
+    def assign_variables(self, node):
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                self.variables[target.id] = self.eval_node(node.value)
+                self.lines.append({
+                    'line number': node.lineno,
+                    'variables': self.variables.copy(),
+                    'file': self.filename
+                })
+
+    def for_loop(self, node):
+        for target in node.target.elts:
+            if isinstance(target, ast.Name):
+                self.variables[target.id] = self.eval_node(node.iter)
+                self.lines.append({
+                    'line number': node.lineno,
+                    'variables': self.variables.copy(),
+                    'file': self.filename
+                })
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def function_def(self, node):
+        for arg in node.args.args:
+            self.variables[arg.arg] = None
+            self.lines.append({
+                'line number': node.lineno,
+                'variables': self.variables.copy(),
+                'file': self.filename
+            })
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def if_statement(self, node):
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def while_loop(self, node):
+        for i in range(len(node.body)):
+            self.track_variables_in_body(node.body[i], node.lineno)
+
+    def aug_assign(self, node):
+        if isinstance(node.target, ast.Name):
+            self.variables[node.target.id] = self.eval_node(node.value)
+            self.lines.append({
+                'line number': node.lineno,
+                'variables': self.variables.copy(),
+                'file': self.filename
+            })
+
+    def track_variables_in_body(self, node, lineno):
+        if isinstance(node, ast.Assign):
+            self.assign_variables(node)
+        elif isinstance(node, ast.For):
+            self.for_loop(node)
+        elif isinstance(node, ast.FunctionDef):
+            self.function_def(node)
+        elif isinstance(node, ast.If):
+            self.if_statement(node)
+        elif isinstance(node, ast.While):
+            self.while_loop(node)
+        elif isinstance(node, ast.AugAssign):
+            self.aug_assign(node)
+        elif isinstance(node, ast.Call):
+            self.function_call(node)
+
+    def eval_node(self, node):
+        if isinstance(node, ast.Num):
+            return node.n
+        elif isinstance(node, ast.Str):
+            return node.s
+        elif isinstance(node, ast.Name):
+            return self.variables.get(node.id)
+        elif isinstance(node, ast.List):
+            return [self.eval_node(x) for x in node.elts]
+        elif isinstance(node, ast.Tuple):
+            return tuple(self.eval_node(x) for x in node.elts)
+        elif isinstance(node, ast.Dict):
+            return {self.eval_node(k): self.eval_node(v) for k, v in zip(node.keys, node.values)}
+        elif isinstance(node, ast.Call):
+            return self.eval_node(node.func)(*self.eval_node(node.args))
+        else:
+            return None
+
+    def import_module(self, node):
+        for alias in node.names:
+            self.imports[alias.name] = importlib.import_module(alias.name)
+            self.lines.append({
+                'line number': node.lineno,
+                'variables': self.variables.copy(),
+                'file': self.filename
+            })
+
+    def function_call(self, node):
+        func_name = node.func.id
+        if func_name in self.imports:
+            func = getattr(self.imports[func_name], func_name)
+        else:
+            func = self.variables.get(func_name)
+        if func:
+            args = [self.eval_node(arg) for arg in node.args]
+            result = func(*args)
+            self.lines.append({
+                'line number': node.lineno,
+                'variables': self.variables.copy(),
+                'file': self.filename
+            })
+
+    def save_to_jsonl(self, filename):
+        with open(filename, 'w') as f:
+            for line in self.lines:
+                json.dump(line, f)
+                f.write('\n')
+
+def main():
+    tracker = CodeTracker('test.py')
+    tracker.track_variables()
+    tracker.save_to_jsonl('test.jsonl')
+
+if __name__ == '__main__':
+    main()
+```
+
+This code will track the state of variables after each line of the code, including function calls and imports. However, it does not handle all possible cases, such as nested functions, lambda functions, and complex data structures.
+
+To use this code, simply replace `'test.py'` with the name of your Python file, and `'test.jsonl'` with the name of the output file. The output file will contain a JSON object for each line of the code, with the line number, variables, and file name.
+
+Please note that this code is a simplified example and may not work for all cases. You may need to modify it to suit your specific needs.
+
+
+To achieve this, we'll need to modify the code to track the state of variables after each line of execution. We can use the `sys.settrace` function to set a tracing function that will be called after each line of execution.
+
+Here's an example of how you can modify the code to achieve this:
+
+```python
+import sys
+import json
+
+def quicksort(arr):
+    """
+    Sorts an array using the QuickSort algorithm.
+
+    Args:
+        arr (list): The array to be sorted.
+
+    Returns:
+        list: The sorted array.
+    """
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+def trace(frame, event, arg):
+    if event == 'line':
+        variables = {k: v for k, v in frame.f_locals.items() if not k.startswith('__')}
+        print(json.dumps({
+            'line number': frame.f_lineno,
+            'variables': variables,
+            'file': frame.f_code.co_filename
+        }))
+    return trace
+
+# Example usage:
+arr = [3, 6, 8, 10, 1, 2, 1]
+sys.settrace(trace)
+quicksort(arr)
+sys.settrace(None)
+```
+
+However, this will not work as expected because the tracing function is not called for each line of execution in the recursive calls to `quicksort`. To fix this, we need to modify the tracing function to set the tracing function for each new frame.
+
+Here's an updated version of the code:
+
+```python
+import sys
+import json
+
+def quicksort(arr):
+    """
+    Sorts an array using the QuickSort algorithm.
+
+    Args:
+        arr (list): The array to be sorted.
+
+    Returns:
+        list: The sorted array.
+    """
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+def trace(frame, event, arg):
+    if event == 'call':
+        sys.settrace(trace)
+    elif event == 'line':
+        variables = {k: v for k, v in frame.f_locals.items() if not k.startswith('__')}
+        print(json.dumps({
+            'line number': frame.f_lineno,
+            'variables': variables,
+            'file': frame.f_code.co_filename
+        }))
+    elif event == 'return':
+        sys.settrace(None)
+    return trace
+
+# Example usage:
+arr = [3, 6, 8, 10, 1, 2, 1]
+sys.settrace(trace)
+quicksort(arr)
+sys.settrace(None)
+```
+
+This code will print the state of variables after each line of execution in the `quicksort` function and its recursive calls.
+
+To write the output to a JSONL file, you can modify the tracing function to write to a file instead of printing to the console:
+
+```python
+import sys
+import json
+
+def quicksort(arr):
+    """
+    Sorts an array using the QuickSort algorithm.
+
+    Args:
+        arr (list): The array to be sorted.
+
+    Returns:
+        list: The sorted array.
+    """
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+def trace(frame, event, arg):
+    if event == 'call':
+        sys.settrace(trace)
+    elif event == 'line':
+        variables = {k: v for k, v in frame.f_locals.items() if not k.startswith('__')}
+        with open('output.jsonl', 'a') as f:
+            f.write(json.dumps({
+                'line number': frame.f_lineno,
+                'variables': variables,
+                'file': frame.f_code.co_filename
+            }) + '\n')
+    elif event == 'return':
+        sys.settrace(None)
+    return trace
+
+# Example usage:
+arr = [3, 6, 8, 10, 1, 2, 1]
+sys.settrace(trace)
+quicksort(arr)
+sys.settrace(None)
+```
+
+This code will write the state of variables after each line of execution to a file named `output.jsonl`.
